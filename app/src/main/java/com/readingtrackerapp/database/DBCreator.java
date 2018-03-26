@@ -3,7 +3,13 @@ package com.readingtrackerapp.database;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import com.readingtrackerapp.database.DBContractClass.*;
+
+import com.readingtrackerapp.database.DBContractClass.BOOK;
+import com.readingtrackerapp.database.DBContractClass.COMMENT;
+import com.readingtrackerapp.database.DBContractClass.GENRE;
+import com.readingtrackerapp.database.DBContractClass.MONTHLY_GOAL;
+import com.readingtrackerapp.database.DBContractClass.READING_EVIDENTION;
+import com.readingtrackerapp.database.DBContractClass.USER;
 
 
 /**

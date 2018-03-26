@@ -3,11 +3,10 @@ package com.readingtrackerapp.adapters;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.util.Log;
 
-import com.readingtrackerapp.fragments.ReadBooksFragment;
 import com.readingtrackerapp.fragments.BooksForReadingFragment;
 import com.readingtrackerapp.fragments.CurrentlyReadingBooksFragment;
+import com.readingtrackerapp.fragments.ReadBooksFragment;
 
 import java.util.ArrayList;
 import java.util.List;
