@@ -7,9 +7,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
 
-import com.readingtrackerapp.helper.CalendarHelper;
 import com.readingtrackerapp.R;
 import com.readingtrackerapp.database.DBHandler;
+import com.readingtrackerapp.helper.CalendarHelper;
 
 /**
  * Created by Anes on 3/24/2018.

@@ -4,15 +4,13 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.CursorAdapter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 
 import com.readingtrackerapp.R;
-import com.readingtrackerapp.adapters.BookListAdapter;
+import com.readingtrackerapp.adapters.BooksForReadingListAdapter;
 import com.readingtrackerapp.database.DBHandler;
 
 /**
@@ -31,11 +29,12 @@ public class BooksForReadingFragment extends Fragment {
 
         View view= inflater.inflate(R.layout.books_for_reading_fragment_layout,null,false);
 
+        // db object for retrieving data: IMPORTANT close it in onDestroy()
         dbHandler=new DBHandler(getContext());
 
         listView=view.findViewById(R.id.listView);
 
-        BookListAdapter adapter=new BookListAdapter(getActivity().getApplicationContext(),dbHandler.getBookForReading(),CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        BooksForReadingListAdapter adapter=new BooksForReadingListAdapter(getActivity().getApplicationContext(),dbHandler.getBookForReading(),CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         listView.setAdapter(adapter);
 
         return view;

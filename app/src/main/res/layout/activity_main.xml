@@ -23,7 +23,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_scrollFlags="scroll|enterAlways"
-            app:title="Text tabs" />
+            app:title="Reading Tracker"
+            />
 
         <android.support.design.widget.TabLayout
             android:id="@+id/tabLayout"

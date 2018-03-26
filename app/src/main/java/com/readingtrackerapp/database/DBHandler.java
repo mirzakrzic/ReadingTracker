@@ -4,13 +4,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
+import android.database.sqlite.SQLiteQueryBuilder;
 
-import com.readingtrackerapp.database.DBContractClass.*;
-import com.readingtrackerapp.model.*;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.readingtrackerapp.database.DBContractClass.BOOK;
+import com.readingtrackerapp.database.DBContractClass.GENRE;
+import com.readingtrackerapp.database.DBContractClass.USER;
+import com.readingtrackerapp.model.Book;
+import com.readingtrackerapp.model.Genre;
+import com.readingtrackerapp.model.User;
 
 /**
  * Created by Anes on 3/23/2018.
@@ -93,7 +94,7 @@ public class DBHandler {
     }
     public Genre getGenreById(String id){
 
-        Cursor c=db.query(GENRE.TABLE_NAME,new String[]{GENRE.COLUMN_ID,GENRE.COLUMN_NAME},GENRE.COLUMN_ID+"=?",new String[]{id},null,null,null);
+        Cursor c=db.query(GENRE.TABLE_NAME,new String[]{GENRE.COLUMN_ID, GENRE.COLUMN_NAME}, GENRE.COLUMN_ID+"=?",new String[]{id},null,null,null);
 
         return !c.moveToNext()?null:new Genre(c.getInt(0),c.getString(1));
 
@@ -101,7 +102,7 @@ public class DBHandler {
     }
     public Cursor getAllGenres(){
 
-        Cursor c=db.query(GENRE.TABLE_NAME,new String[]{GENRE.COLUMN_ID,GENRE.COLUMN_NAME},null,null,null,null,GENRE.COLUMN_NAME);
+        Cursor c=db.query(GENRE.TABLE_NAME,new String[]{GENRE.COLUMN_ID, GENRE.COLUMN_NAME},null,null,null,null, GENRE.COLUMN_NAME);
 
         return c;
 
@@ -138,37 +139,50 @@ public class DBHandler {
     }
     public Book getBookById(String id){
 
-        Cursor c=db.query(BOOK.TABLE_NAME,new String[]{BOOK.COLUMN_ID,BOOK.COLUMN_TITLE,BOOK.COLUMN_NUMBER_OF_PAGES,BOOK.COLUMN_AUTHOR_NAME,BOOK.COLUMN_GENRE_ID,BOOK.COLUMN_RATING,BOOK.COLUMN_CURRENTLY_READING,BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES},BOOK.COLUMN_ID+"=?",new String[]{id},null,null,null);
+        Cursor c=db.query(BOOK.TABLE_NAME,new String[]{BOOK.COLUMN_ID, BOOK.COLUMN_TITLE, BOOK.COLUMN_NUMBER_OF_PAGES, BOOK.COLUMN_AUTHOR_NAME, BOOK.COLUMN_GENRE_ID, BOOK.COLUMN_RATING, BOOK.COLUMN_CURRENTLY_READING, BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES}, BOOK.COLUMN_ID+"=?",new String[]{id},null,null,null);
 
         return !c.moveToNext()? null: new Book(c.getInt(0),c.getString(1),c.getInt(2),c.getString(3),c.getInt(4),c.getInt(5),c.getInt(6)>0,c.getInt(7)>0,c.getInt(8)>0,c.getString(9),c.getInt(10));
 
     }
     public Cursor getBooksByGenreId(String genreId){
 
-        Cursor c=db.query(BOOK.TABLE_NAME,new String[]{BOOK.COLUMN_ID,BOOK.COLUMN_TITLE,BOOK.COLUMN_NUMBER_OF_PAGES,BOOK.COLUMN_AUTHOR_NAME,BOOK.COLUMN_GENRE_ID,BOOK.COLUMN_RATING,BOOK.COLUMN_CURRENTLY_READING,BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES},BOOK.COLUMN_GENRE_ID+"=?",new String[]{genreId},null,null,BOOK.COLUMN_TITLE);
+        Cursor c=db.query(BOOK.TABLE_NAME,new String[]{BOOK.COLUMN_ID, BOOK.COLUMN_TITLE, BOOK.COLUMN_NUMBER_OF_PAGES, BOOK.COLUMN_AUTHOR_NAME, BOOK.COLUMN_GENRE_ID, BOOK.COLUMN_RATING, BOOK.COLUMN_CURRENTLY_READING, BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES}, BOOK.COLUMN_GENRE_ID+"=?",new String[]{genreId},null,null, BOOK.COLUMN_TITLE);
 
         return c;
 
     }
     public Cursor getCurrentlyReadingBooks(){
 
-        Cursor c=db.query(BOOK.TABLE_NAME,new String[]{BOOK.COLUMN_ID,BOOK.COLUMN_TITLE,BOOK.COLUMN_NUMBER_OF_PAGES,BOOK.COLUMN_AUTHOR_NAME,BOOK.COLUMN_GENRE_ID,BOOK.COLUMN_RATING,BOOK.COLUMN_CURRENTLY_READING,BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES},BOOK.COLUMN_CURRENTLY_READING+"=?",new String[]{"1"},null,null,BOOK.COLUMN_TITLE);
+        SQLiteQueryBuilder builder=new SQLiteQueryBuilder();
+
+        builder.setTables(BOOK.TABLE_NAME+" join "+ GENRE.TABLE_NAME+" on "+ BOOK.TABLE_NAME+"."+ BOOK.COLUMN_GENRE_ID+"="+ GENRE.TABLE_NAME+"."+ GENRE.COLUMN_ID);
+
+        Cursor c=builder.query(db,new String[]{BOOK.TABLE_NAME+"."+ BOOK.COLUMN_ID, BOOK.COLUMN_TITLE, BOOK.COLUMN_NUMBER_OF_PAGES, BOOK.COLUMN_AUTHOR_NAME, BOOK.COLUMN_GENRE_ID, GENRE.COLUMN_NAME, BOOK.COLUMN_RATING, BOOK.COLUMN_CURRENTLY_READING, BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES}, BOOK.COLUMN_CURRENTLY_READING+"=?",new String[]{"1"},null,null, BOOK.COLUMN_TITLE);
 
         return c;
 
     }
     public Cursor getReadBooks(){
 
-        Cursor c=db.query(BOOK.TABLE_NAME,new String[]{BOOK.COLUMN_ID,BOOK.COLUMN_TITLE,BOOK.COLUMN_NUMBER_OF_PAGES,BOOK.COLUMN_AUTHOR_NAME,BOOK.COLUMN_GENRE_ID,BOOK.COLUMN_RATING,BOOK.COLUMN_CURRENTLY_READING,BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES},BOOK.COLUMN_ALREADY_READ+"=?",new String[]{"1"},null,null,BOOK.COLUMN_TITLE);
+        SQLiteQueryBuilder builder=new SQLiteQueryBuilder();
+
+        builder.setTables(BOOK.TABLE_NAME+" join "+ GENRE.TABLE_NAME+" on "+ BOOK.TABLE_NAME+"."+ BOOK.COLUMN_GENRE_ID+"="+ GENRE.TABLE_NAME+"."+ GENRE.COLUMN_ID);
+
+        Cursor c=builder.query(db,new String[]{BOOK.TABLE_NAME+"."+ BOOK.COLUMN_ID, BOOK.COLUMN_TITLE, BOOK.COLUMN_NUMBER_OF_PAGES, BOOK.COLUMN_AUTHOR_NAME, BOOK.COLUMN_GENRE_ID, GENRE.COLUMN_NAME, BOOK.COLUMN_RATING, BOOK.COLUMN_CURRENTLY_READING, BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES}, BOOK.COLUMN_ALREADY_READ+"=?",new String[]{"1"},null,null, BOOK.COLUMN_TITLE);
 
         return c;
     }
     public Cursor getBookForReading(){
 
-        Cursor c=db.query(BOOK.TABLE_NAME,new String[]{BOOK.COLUMN_ID,BOOK.COLUMN_TITLE,BOOK.COLUMN_NUMBER_OF_PAGES,BOOK.COLUMN_AUTHOR_NAME,BOOK.COLUMN_GENRE_ID,BOOK.COLUMN_RATING,BOOK.COLUMN_CURRENTLY_READING,BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES},BOOK.COLUMN_FOR_READING+"=?",new String[]{"1"},null,null,BOOK.COLUMN_TITLE);
+        SQLiteQueryBuilder builder=new SQLiteQueryBuilder();
+
+        builder.setTables(BOOK.TABLE_NAME+" join "+ GENRE.TABLE_NAME+" on "+ BOOK.TABLE_NAME+"."+ BOOK.COLUMN_GENRE_ID+"="+ GENRE.TABLE_NAME+"."+ GENRE.COLUMN_ID);
+
+        Cursor c=builder.query(db,new String[]{BOOK.TABLE_NAME+"."+ BOOK.COLUMN_ID, BOOK.COLUMN_TITLE, BOOK.COLUMN_NUMBER_OF_PAGES, BOOK.COLUMN_AUTHOR_NAME, BOOK.COLUMN_GENRE_ID, GENRE.COLUMN_NAME, BOOK.COLUMN_RATING, BOOK.COLUMN_CURRENTLY_READING, BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES}, BOOK.COLUMN_FOR_READING+"=?",new String[]{"1"},null,null, BOOK.COLUMN_TITLE);
 
         return c;
     }
+
 
 
 

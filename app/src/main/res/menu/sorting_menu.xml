@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/search"
+        android:actionViewClass="android.widget.SearchView"
+        android:icon="@drawable/ic_search_black_24dp"
+        android:title="Search"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/order"
+        android:icon="@drawable/ic_order"
+        android:title="Order by"
+        app:showAsAction="always">
+
+        <menu>
+
+
+            <item
+                android:checkable="false"
+                android:enabled="false"
+                android:title="Order by:" />
+
+            <item
+                android:id="@+id/ascending"
+                android:title="ascending"/>
+
+            <item
+                android:id="@+id/descending"
+                android:title="descending"/>
+
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/sort"
+        android:icon="@drawable/ic_sort"
+        android:title="Sort by"
+        app:showAsAction="always">
+
+        <menu>
+
+            <item
+                android:checkable="false"
+                android:enabled="false"
+                android:title="Sort by:" />
+            <item
+                android:id="@+id/sortByAuthor"
+                android:title="author name"
+                app:showAsAction="never" />
+
+            <item
+                android:id="@+id/sortByTitle"
+                android:title="title"
+                android:checked="true"
+                app:showAsAction="never" />
+
+            <item
+                android:id="@+id/sortByGenre"
+                android:title="genre"
+                app:showAsAction="never" />
+
+            <item
+                android:id="@+id/sortByPagesNumber"
+                android:title="number of pages"
+                app:showAsAction="never" />
+
+            <item
+                android:id="@+id/sortByRating"
+                android:title="rating"
+                app:showAsAction="never" />
+
+
+            <item
+                android:id="@+id/sortByReadPages"
+                android:title="read pages"
+                app:showAsAction="never" />
+
+
+        </menu>
+
+
+    </item>
+</menu>

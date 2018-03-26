@@ -8,10 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 
 import com.readingtrackerapp.R;
-import com.readingtrackerapp.adapters.BookListAdapter;
+import com.readingtrackerapp.adapters.CurrentlyReadingBooksListAdapter;
 import com.readingtrackerapp.database.DBHandler;
 
 /**
@@ -30,11 +29,12 @@ public class CurrentlyReadingBooksFragment extends Fragment {
 
         View view= inflater.inflate(R.layout.currently_reading_books_fragment_layout,null,false);
 
+        // db class for retreiving data, IMPORTANT:onDestroy() closing
         dbHandler=new DBHandler(getContext());
 
         listView=view.findViewById(R.id.listView);
 
-        BookListAdapter adapter=new BookListAdapter(getActivity().getApplicationContext(),dbHandler.getCurrentlyReadingBooks(), CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        CurrentlyReadingBooksListAdapter adapter=new CurrentlyReadingBooksListAdapter(getActivity().getApplicationContext(),dbHandler.getCurrentlyReadingBooks(), CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         listView.setAdapter(adapter);
 
         return view;
