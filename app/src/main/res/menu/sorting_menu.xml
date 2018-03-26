@@ -13,26 +13,8 @@
         android:id="@+id/order"
         android:icon="@drawable/ic_order"
         android:title="Order by"
-        app:showAsAction="always">
+        app:showAsAction="always" />
 
-        <menu>
-
-
-            <item
-                android:checkable="false"
-                android:enabled="false"
-                android:title="Order by:" />
-
-            <item
-                android:id="@+id/ascending"
-                android:title="ascending"/>
-
-            <item
-                android:id="@+id/descending"
-                android:title="descending"/>
-
-        </menu>
-    </item>
 
     <item
         android:id="@+id/sort"
@@ -53,8 +35,8 @@
 
             <item
                 android:id="@+id/sortByTitle"
-                android:title="title"
                 android:checked="true"
+                android:title="title"
                 app:showAsAction="never" />
 
             <item

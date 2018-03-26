@@ -49,7 +49,7 @@ public class CurrentlyReadingBooksListAdapter extends CursorAdapter {
         progressBar.setMax(100);
 
             // calculating percent of read pages
-        int percentOfReadPages=(int)(cursor.getInt(cursor.getColumnIndex(DBContractClass.BOOK.COLUMN_NUMBER_OF_READ_PAGES))*100)/ cursor.getInt(cursor.getColumnIndex(DBContractClass.BOOK.COLUMN_NUMBER_OF_PAGES));
+        int percentOfReadPages=(int)(cursor.getInt(cursor.getColumnIndex("PERCENTAGE")));
 
             // set percent to progres bar and progress text view
         progressBar.setProgress(percentOfReadPages);
@@ -63,5 +63,11 @@ public class CurrentlyReadingBooksListAdapter extends CursorAdapter {
             return 0;
         }
         return getCursor().getCount();
+    }
+
+    // changing cursor while sorting
+    @Override
+    public void changeCursor(Cursor cursor) {
+        super.changeCursor(cursor);
     }
 }

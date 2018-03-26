@@ -21,7 +21,6 @@ public class MainActivity extends AppCompatActivity {
     Toolbar toolbar;
     ViewPager viewPager;
     TabLayout tabLayout;
-    Menu sortingMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,32 +69,6 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
 
-
-        // setting listener to call method for showing and hiding sorting menu items on every tab scroll
-        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-                // important to check !=null because view pager listener invoke setMenuItems method before onCreateOptionsMenu is called and menu then is null
-            if(sortingMenu!=null)
-
-                // set menu items depending on currently watching tab
-                setMenuItems(position);
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-
-        });
-
-
     }
 
     // setting toolbar for sorting books menu
@@ -104,56 +77,12 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
     }
 
-    // showing & hiding sorting menu items depending on currently view pager tab
-    private void setMenuItems(int position) {
-
-        // sortByRating and sortByReadPages are menu items which will not be shown at sorting menu for every scrolling tab
-        MenuItem sortByRating = sortingMenu.findItem(R.id.sortByRating);
-        MenuItem sortByReadPages = sortingMenu.findItem(R.id.sortByReadPages);
-
-        // position retreived from viewPager change listener
-        switch (position) {
-
-            // currently reading books tab, cannot sort by rating here
-            case 0: {
-                sortByReadPages.setVisible(true);
-
-                sortByRating.setVisible(false);
-            }
-            break;
-
-            // already read books tab, cannot sort by number of read pages here
-            case 1: {
-                sortByRating.setVisible(true);
-
-                sortByReadPages.setVisible(false);
-            }
-            break;
-
-            // books for reading tab, cannot sort by read pages and rating here
-            case 2: {
-                sortByRating.setVisible(false);
-
-                sortByReadPages.setVisible(false);
-            }
-            break;
-
-        }
-
-
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu1) {
 
         // creating sorting menu
         getMenuInflater().inflate(R.menu.sorting_menu, menu1);
-        sortingMenu = menu1;
-
-        // seting sorting menu for currently watching view pager tab
-        setMenuItems(viewPager.getCurrentItem());
-
-
         return true;
 
     }

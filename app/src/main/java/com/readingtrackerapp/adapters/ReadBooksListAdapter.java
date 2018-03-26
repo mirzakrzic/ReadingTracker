@@ -62,4 +62,10 @@ public class ReadBooksListAdapter extends CursorAdapter {
         }
         return getCursor().getCount();
     }
+
+    // changing cursor while sorting
+    @Override
+    public void changeCursor(Cursor cursor) {
+        super.changeCursor(cursor);
+    }
 }
