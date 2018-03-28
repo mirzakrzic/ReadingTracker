@@ -4,7 +4,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.CursorAdapter;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -31,7 +33,10 @@ public class ReadBooksFragment extends Fragment {
     Menu sortingMenu;
     boolean ASCENDING_ORDER = true;
     String SORTING_COLUMN = DBContractClass.BOOK.COLUMN_TITLE;
+    String SEARCH_TEXT="";
     String sortByTextForSnackBar="title";
+
+    // *** SAME COMMENTS AS BooksForReadingFragment :)
 
 
     @Override
@@ -41,6 +46,23 @@ public class ReadBooksFragment extends Fragment {
         setHasOptionsMenu(true);
     }
 
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
+        View view = inflater.inflate(R.layout.read_books_fragment_layout, null, false);
+
+        // db object for retrieving data: IMPORTANT close it in onDestroy()
+        dbHandler = new DBHandler(getContext());
+
+        listView = view.findViewById(R.id.listView);
+
+        adapter = new ReadBooksListAdapter(getActivity().getApplicationContext(), dbHandler.getReadBooks(ASCENDING_ORDER, SORTING_COLUMN,SEARCH_TEXT), CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        listView.setAdapter(adapter);
+
+        return view;
+    }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
@@ -48,8 +70,32 @@ public class ReadBooksFragment extends Fragment {
 
         sortingMenu.findItem(R.id.sortByRating).setVisible(true);
         sortingMenu.findItem(R.id.sortByReadPages).setVisible(false);
-    }
 
+
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(sortingMenu.findItem(R.id.search));
+        if (searchView != null) {
+
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+
+                    SEARCH_TEXT=newText;
+                    adapter.changeCursor(dbHandler.getReadBooks(ASCENDING_ORDER,SORTING_COLUMN,SEARCH_TEXT));
+
+                    return false;
+                }
+            });
+
+            searchView.setQueryHint("book title");
+
+        }
+
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -90,31 +136,13 @@ public class ReadBooksFragment extends Fragment {
         }
 
         // retrieving new db cursor to sort data
-        adapter.changeCursor(dbHandler.getReadBooks(ASCENDING_ORDER, SORTING_COLUMN));
+        adapter.changeCursor(dbHandler.getReadBooks(ASCENDING_ORDER, SORTING_COLUMN,SEARCH_TEXT));
 
         Snackbar.make(getActivity().findViewById(R.id.content),"Sorted by "+sortByTextForSnackBar+ (ASCENDING_ORDER?" ascending":" descending"),Snackbar.LENGTH_SHORT).show();
 
         return true;
 
     }
-
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-        View view = inflater.inflate(R.layout.read_books_fragment_layout, null, false);
-
-        // db object for retrieving data: IMPORTANT close it in onDestroy()
-        dbHandler = new DBHandler(getContext());
-
-        listView = view.findViewById(R.id.listView);
-
-        adapter = new ReadBooksListAdapter(getActivity().getApplicationContext(), dbHandler.getReadBooks(ASCENDING_ORDER, SORTING_COLUMN), CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-        listView.setAdapter(adapter);
-
-        return view;
-    }
-
 
     @Override
     public void onDestroy() {

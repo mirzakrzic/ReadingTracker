@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
+import android.util.Log;
 
 import com.readingtrackerapp.database.DBContractClass.BOOK;
 import com.readingtrackerapp.database.DBContractClass.GENRE;
@@ -151,35 +152,82 @@ public class DBHandler {
         return c;
 
     }
-    public Cursor getCurrentlyReadingBooks(boolean ascending,String orderColumn){
+    public Cursor getCurrentlyReadingBooks(boolean ascending,String orderColumn, String bookTitle) {
 
-        SQLiteQueryBuilder builder=new SQLiteQueryBuilder();
+        SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
 
-        builder.setTables(BOOK.TABLE_NAME+" join "+ GENRE.TABLE_NAME+" on "+ BOOK.TABLE_NAME+"."+ BOOK.COLUMN_GENRE_ID+"="+ GENRE.TABLE_NAME+"."+ GENRE.COLUMN_ID);
+        // join genres and books tables
+        builder.setTables(BOOK.TABLE_NAME + " join " + GENRE.TABLE_NAME + " on " + BOOK.TABLE_NAME + "." + BOOK.COLUMN_GENRE_ID + "=" + GENRE.TABLE_NAME + "." + GENRE.COLUMN_ID);
 
-        Cursor c=builder.query(db,new String[]{BOOK.TABLE_NAME+"."+ BOOK.COLUMN_ID, "(("+BOOK.COLUMN_NUMBER_OF_READ_PAGES+"*100)/"+ BOOK.COLUMN_NUMBER_OF_PAGES+") as PERCENTAGE",BOOK.COLUMN_TITLE, BOOK.COLUMN_NUMBER_OF_PAGES, BOOK.COLUMN_AUTHOR_NAME, BOOK.COLUMN_GENRE_ID, GENRE.COLUMN_NAME, BOOK.COLUMN_RATING, BOOK.COLUMN_CURRENTLY_READING, BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES}, BOOK.COLUMN_CURRENTLY_READING+"=?",new String[]{"1"},null,null, orderColumn+(ascending?" ASC":" DESC"));
+        // selection statement and arguments for query WHERE
+        String selection;
+        String [] arguments;
 
+        // if search text is not empty
+        if(!bookTitle.isEmpty()){
+
+            // curentlyOnReading = 1 AND title like searchBookTitleText
+           selection=BOOK.COLUMN_CURRENTLY_READING+"=? AND "+ BOOK.COLUMN_TITLE+" like ?";
+           arguments=new String[]{"1",bookTitle+"%"};
+        }
+        // if search text is not empty
+        else{
+            // currentlyOnReading=1
+            selection=BOOK.COLUMN_CURRENTLY_READING+"=?";
+            arguments=new String[]{"1"};
+        }
+
+        // querying db
+        Cursor c = builder.query(db, new String[]{BOOK.TABLE_NAME + "." + BOOK.COLUMN_ID, "((" + BOOK.COLUMN_NUMBER_OF_READ_PAGES + "*100)/" + BOOK.COLUMN_NUMBER_OF_PAGES + ") as PERCENTAGE", BOOK.COLUMN_TITLE, BOOK.COLUMN_NUMBER_OF_PAGES, BOOK.COLUMN_AUTHOR_NAME, BOOK.COLUMN_GENRE_ID, GENRE.COLUMN_NAME, BOOK.COLUMN_RATING, BOOK.COLUMN_CURRENTLY_READING, BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES}, selection, arguments, null, null, orderColumn + (ascending ? " ASC" : " DESC"));
         return c;
 
     }
-    public Cursor getReadBooks(boolean ascending,String orderColumn){
+    public Cursor getReadBooks(boolean ascending,String orderColumn, String bookTitle){
+
+        // same comments for getCurrentlyReading books
 
         SQLiteQueryBuilder builder=new SQLiteQueryBuilder();
 
         builder.setTables(BOOK.TABLE_NAME+" join "+ GENRE.TABLE_NAME+" on "+ BOOK.TABLE_NAME+"."+ BOOK.COLUMN_GENRE_ID+"="+ GENRE.TABLE_NAME+"."+ GENRE.COLUMN_ID);
 
-        Cursor c=builder.query(db,new String[]{BOOK.TABLE_NAME+"."+ BOOK.COLUMN_ID, BOOK.COLUMN_TITLE, BOOK.COLUMN_NUMBER_OF_PAGES, BOOK.COLUMN_AUTHOR_NAME, BOOK.COLUMN_GENRE_ID, GENRE.COLUMN_NAME, BOOK.COLUMN_RATING, BOOK.COLUMN_CURRENTLY_READING, BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES}, BOOK.COLUMN_ALREADY_READ+"=?",new String[]{"1"},null,null, orderColumn+(ascending?" ASC":" DESC"));
+        String selection;
+        String [] arguments;
 
+
+        if(!bookTitle.isEmpty()){
+            selection=BOOK.COLUMN_ALREADY_READ+"=? AND "+ BOOK.COLUMN_TITLE+" like ?";
+            arguments=new String[]{"1",bookTitle+"%"};
+        }
+        else{
+            selection=BOOK.COLUMN_ALREADY_READ+"=?";
+            arguments=new String[]{"1"};
+        }
+
+        Cursor c=builder.query(db,new String[]{BOOK.TABLE_NAME+"."+ BOOK.COLUMN_ID, BOOK.COLUMN_TITLE, BOOK.COLUMN_NUMBER_OF_PAGES, BOOK.COLUMN_AUTHOR_NAME, BOOK.COLUMN_GENRE_ID, GENRE.COLUMN_NAME, BOOK.COLUMN_RATING, BOOK.COLUMN_CURRENTLY_READING, BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES}, selection,arguments,null,null, orderColumn+(ascending?" ASC":" DESC"));
         return c;
     }
-    public Cursor getBookForReading(boolean ascending,String orderColumn){
+    public Cursor getBookForReading(boolean ascending,String orderColumn, String bookTitle){
+
+        // same comments for getCurrentlyReading books
 
         SQLiteQueryBuilder builder=new SQLiteQueryBuilder();
 
         builder.setTables(BOOK.TABLE_NAME+" join "+ GENRE.TABLE_NAME+" on "+ BOOK.TABLE_NAME+"."+ BOOK.COLUMN_GENRE_ID+"="+ GENRE.TABLE_NAME+"."+ GENRE.COLUMN_ID);
 
-        Cursor c=builder.query(db,new String[]{BOOK.TABLE_NAME+"."+ BOOK.COLUMN_ID, BOOK.COLUMN_TITLE, BOOK.COLUMN_NUMBER_OF_PAGES, BOOK.COLUMN_AUTHOR_NAME, BOOK.COLUMN_GENRE_ID, GENRE.COLUMN_NAME, BOOK.COLUMN_RATING, BOOK.COLUMN_CURRENTLY_READING, BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES}, BOOK.COLUMN_FOR_READING+"=?",new String[]{"1"},null,null, orderColumn+(ascending?" ASC":" DESC"));
+        String selection;
+        String [] arguments;
 
+
+        if(!bookTitle.isEmpty()){
+            selection=BOOK.COLUMN_FOR_READING+"=? AND "+ BOOK.COLUMN_TITLE+" like ?";
+            arguments=new String[]{"1",bookTitle+"%"};
+        }
+        else{
+            selection=BOOK.COLUMN_FOR_READING+"=?";
+            arguments=new String[]{"1"};
+        }
+
+        Cursor c=builder.query(db,new String[]{BOOK.TABLE_NAME+"."+ BOOK.COLUMN_ID, BOOK.COLUMN_TITLE, BOOK.COLUMN_NUMBER_OF_PAGES, BOOK.COLUMN_AUTHOR_NAME, BOOK.COLUMN_GENRE_ID, GENRE.COLUMN_NAME, BOOK.COLUMN_RATING, BOOK.COLUMN_CURRENTLY_READING, BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES}, selection,arguments,null,null, orderColumn+(ascending?" ASC":" DESC"));
         return c;
     }
 
