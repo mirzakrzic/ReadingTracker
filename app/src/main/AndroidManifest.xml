@@ -18,5 +18,9 @@
         </intent-filter>
     </activity>
     <activity android:name=".activities.RegisterUser"/>
+
+        <receiver android:name=".alarmManager.MyReceiver"/>
+
+        <activity android:name=".activities.RecordReading"/>
 </application>
 </manifest>
