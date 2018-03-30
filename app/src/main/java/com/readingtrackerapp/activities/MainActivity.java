@@ -1,6 +1,8 @@
 package com.readingtrackerapp.activities;
 
+import android.app.IntentService;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -8,13 +10,21 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.readingtrackerapp.R;
 import com.readingtrackerapp.adapters.TabAdapter;
+import com.readingtrackerapp.alarmManager.MyAlarmManager;
+import com.readingtrackerapp.database.DBContractClass;
 import com.readingtrackerapp.database.DBHandler;
+import com.readingtrackerapp.helper.CalendarHelper;
 import com.readingtrackerapp.model.User;
+
+import java.util.Calendar;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,7 +50,17 @@ public class MainActivity extends AppCompatActivity {
         // set view pager
         setViewPager();
 
+    }
 
+    private void setAlarms() {
+
+        MyAlarmManager myAlarmManager=new MyAlarmManager(getApplicationContext());
+
+        Cursor c = dbHandler.getCurrentlyReadingBooks(true, DBContractClass.BOOK.COLUMN_TITLE, "");
+        while (c.moveToNext())
+            myAlarmManager.setAlarmForBook(c.getString(c.getColumnIndex(DBContractClass.BOOK.COLUMN_ID)), c.getString(c.getColumnIndex(DBContractClass.BOOK.COLUMN_NOTIFICATION_TIME)));
+
+        myAlarmManager.setAlarmForNextMonthlyGoal();
 
     }
 
@@ -90,9 +110,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    // add new book
+    public void AddNewBook(View view) {
+
+        Intent intent=new Intent(this,AddNewBookActivity.class);
+        startActivity(intent);
+
+    }
+
+
+    // onResume activity refresh fragments
+    @Override
+    protected void onResume() {
+        super.onResume();
+        viewPager.getAdapter().notifyDataSetChanged();
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         dbHandler.closeDB();
     }
+
+
 }
