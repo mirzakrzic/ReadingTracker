@@ -31,8 +31,6 @@ public class MainActivity extends AppCompatActivity {
     TextView username;
     NavigationView mNavigationView;
     View mHeaderView;
-
-    TextView textViewUsername;
     String username_text;
 
     @Override
@@ -45,11 +43,11 @@ public class MainActivity extends AppCompatActivity {
         // checks if user is registered
         isUserRegistered();
 
-        // set toolbar and options menu for sorting books
-        setToolbar();
-
-        // set view pager
-        setViewPager();
+//        // set toolbar and options menu for sorting books
+//        setToolbar();
+//
+//        // set view pager
+//        setViewPager();
 
         //initialize nav drawer and put username in header
         InitializeNavDrawer();
@@ -59,6 +57,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void InitializeNavDrawer()
     {
+        setToolbar();
+        setViewPager();
         // NavigationView
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
 
@@ -71,15 +71,19 @@ public class MainActivity extends AppCompatActivity {
         toggle=new ActionBarDrawerToggle(this,drawerLayout,R.string.open,R.string.close);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
 
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if(toggle.onOptionsItemSelected(item))
+        {
+            return true;
+        }
         return super.onOptionsItemSelected(item);
-
-
-
     }
 
     // user registration
