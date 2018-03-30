@@ -231,7 +231,4 @@ public class DBHandler {
         return c;
     }
 
-
-
-
 }
