@@ -42,6 +42,13 @@ public class TabAdapter extends FragmentStatePagerAdapter {
         return fragments.get(position);
     }
 
+    // needed for refreshing fragments in view pager
+    @Override
+    public int getItemPosition(Object object) {
+        // POSITION_NONE makes it possible to reload the PagerAdapter
+        return POSITION_NONE;
+    }
+
     @Override
     public int getCount() {
         return fragments.size();

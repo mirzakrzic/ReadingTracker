@@ -1,5 +1,6 @@
 package com.readingtrackerapp.activities;
 
+import android.app.IntentService;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -48,10 +49,6 @@ public class MainActivity extends AppCompatActivity {
 
         // set view pager
         setViewPager();
-
-        // ***
-        setAlarms();
-
 
     }
 
@@ -113,10 +110,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    // add new book
+    public void AddNewBook(View view) {
+
+        Intent intent=new Intent(this,AddNewBookActivity.class);
+        startActivity(intent);
+
+    }
+
+
+    // onResume activity refresh fragments
+    @Override
+    protected void onResume() {
+        super.onResume();
+        viewPager.getAdapter().notifyDataSetChanged();
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         dbHandler.closeDB();
     }
+
 
 }

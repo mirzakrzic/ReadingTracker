@@ -4,6 +4,7 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast;
 
 import com.readingtrackerapp.helper.CalendarHelper;
 import com.readingtrackerapp.model.Book;
@@ -29,18 +30,23 @@ public class MyAlarmManager {
 
     public void setAlarmForBook(String bookId, String timeForNotification){
 
+        // intent which starts MyReceiver for showing notification
         Intent intent=new Intent(context,MyReceiver.class);
         intent.putExtra("bookId",bookId);
 
+        // pending intent with bookId as code
         PendingIntent pendingIntent=PendingIntent.getBroadcast(context,Integer.parseInt(bookId),intent,0);
 
         AlarmManager alarmManager= (AlarmManager) context.getSystemService(ALARM_SERVICE);
 
+        // setting alarm for bookId at timeForNotification parameters
         alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, CalendarHelper.getDateFromString(timeForNotification).getTimeInMillis(),AlarmManager.INTERVAL_DAY,pendingIntent);
 
     }
 
     public void stopAlarmForBook(String bookId){
+
+        // stopping alarm by pending intent code(bookId)
 
         Intent intent=new Intent(context,MyReceiver.class);
         PendingIntent pendingIntent=PendingIntent.getBroadcast(context,Integer.parseInt(bookId),intent,0);
@@ -64,6 +70,7 @@ public class MyAlarmManager {
 
     }
 
+    // function for determining next month for nextMonthlyGoal
     private long getNextMonth(){
         // get todays date
         Calendar cal = Calendar.getInstance();

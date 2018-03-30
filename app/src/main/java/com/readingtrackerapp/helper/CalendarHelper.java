@@ -10,10 +10,11 @@ import java.util.Calendar;
 
 public class CalendarHelper {
 
-    private static Calendar calendar = Calendar.getInstance();
     private static SimpleDateFormat format = new SimpleDateFormat("EEEE, MMMM d, yyyy 'at' h:mm a");
 
     public static String getCurrentlyDateInString(){
+
+        Calendar calendar=Calendar.getInstance();
 
         return format.format(calendar.getTime());
 
@@ -37,5 +38,15 @@ public class CalendarHelper {
         return calendar;
 
     }
+
+    public static boolean isBeforeNow(Calendar then){
+
+        Calendar now=Calendar.getInstance();
+
+        return now.getTimeInMillis()>=then.getTimeInMillis();
+
+    }
+
+
 
 }
