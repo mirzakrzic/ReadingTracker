@@ -119,7 +119,7 @@ public class DBHandler {
 
 
     // BOOK METHODS
-    public boolean insertBook(String title, int pagesNumber, String author, int genreId, String timeForNotification){
+    public int insertBook(String title, int pagesNumber, String author, int genreId, String timeForNotification, boolean currentlyOnReading){
 
         ContentValues values=new ContentValues();
         values.put(BOOK.COLUMN_TITLE,title);
@@ -128,14 +128,16 @@ public class DBHandler {
         values.put(BOOK.COLUMN_RATING,-1);
         values.put(BOOK.COLUMN_GENRE_ID,genreId);
         values.put(BOOK.COLUMN_ALREADY_READ,0);
-        values.put(BOOK.COLUMN_CURRENTLY_READING,0);
-        values.put(BOOK.COLUMN_FOR_READING,0);
+        values.put(BOOK.COLUMN_CURRENTLY_READING,currentlyOnReading);
+        values.put(BOOK.COLUMN_FOR_READING,!currentlyOnReading);
         values.put(BOOK.COLUMN_NUMBER_OF_READ_PAGES,0);
-        values.put(BOOK.COLUMN_NOTIFICATION_TIME,timeForNotification);
+        if(timeForNotification!=null)
+            values.put(BOOK.COLUMN_NOTIFICATION_TIME,timeForNotification);
+        else
+            values.putNull(BOOK.COLUMN_NOTIFICATION_TIME);
 
-        long num=db.insert(BOOK.TABLE_NAME,null,values);
+        return (int)db.insert(BOOK.TABLE_NAME,null,values);
 
-        return num!=0;
 
     }
     public Book getBookById(String id){
@@ -229,6 +231,11 @@ public class DBHandler {
 
         Cursor c=builder.query(db,new String[]{BOOK.TABLE_NAME+"."+ BOOK.COLUMN_ID, BOOK.COLUMN_TITLE, BOOK.COLUMN_NUMBER_OF_PAGES, BOOK.COLUMN_AUTHOR_NAME, BOOK.COLUMN_GENRE_ID, GENRE.COLUMN_NAME, BOOK.COLUMN_RATING, BOOK.COLUMN_CURRENTLY_READING, BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES}, selection,arguments,null,null, orderColumn+(ascending?" ASC":" DESC"));
         return c;
+    }
+    public Cursor getBooksForSettingAlarmAfterReboot(){
+
+        return db.rawQuery("select "+BOOK.COLUMN_ID+", "+BOOK.COLUMN_NOTIFICATION_TIME+" FROM "+BOOK.TABLE_NAME+" WHERE "+BOOK.COLUMN_NOTIFICATION_TIME+" IS NOT NULL",null);
+
     }
 
 
