@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="152dp"
     android:orientation="vertical"
-    android:background="@drawable/header_background"
+    android:background="@color/colorPrimary"
+
     >
 
     <ImageView
@@ -13,18 +14,19 @@
         android:id="@+id/profile_pic"
         android:src="@drawable/ic_profile"
         android:contentDescription="Profile pic"
-        android:layout_marginLeft="15dp"
         android:layout_marginTop="10dp"
+        android:layout_gravity="center"
+        android:tint="@color/colorWhite"
+
         />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/user_name"
-        android:textColor="@color/colorDarkGrey"
-        android:text="Adnan Ramulj"
+        android:textColor="@color/colorWhite"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-        android:layout_marginLeft="15dp"
+        android:layout_gravity="center"
         android:textStyle="bold"
         />
 
