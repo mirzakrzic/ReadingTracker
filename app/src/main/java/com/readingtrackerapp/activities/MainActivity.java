@@ -52,18 +52,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void setAlarms() {
-
-        MyAlarmManager myAlarmManager=new MyAlarmManager(getApplicationContext());
-
-        Cursor c = dbHandler.getCurrentlyReadingBooks(true, DBContractClass.BOOK.COLUMN_TITLE, "");
-        while (c.moveToNext())
-            myAlarmManager.setAlarmForBook(c.getString(c.getColumnIndex(DBContractClass.BOOK.COLUMN_ID)), c.getString(c.getColumnIndex(DBContractClass.BOOK.COLUMN_NOTIFICATION_TIME)));
-
-        myAlarmManager.setAlarmForNextMonthlyGoal();
-
-    }
-
 
     // user registration
     private void isUserRegistered() {
