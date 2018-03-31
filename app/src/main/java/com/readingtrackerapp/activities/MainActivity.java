@@ -19,6 +19,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.readingtrackerapp.R;
@@ -172,17 +173,19 @@ public class MainActivity extends AppCompatActivity {
     public void AddNewBook(View view) {
 
         Intent intent=new Intent(this,AddNewBookActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent,0);
 
     }
 
-
-    // onResume activity refresh fragments
+    // after adding new bok, refresh list views
     @Override
-    protected void onResume() {
-        super.onResume();
-        viewPager.getAdapter().notifyDataSetChanged();
-    }
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == 0) {
+            viewPager.getAdapter().notifyDataSetChanged();
+        }
+        }
+
 
     @Override
     protected void onDestroy() {

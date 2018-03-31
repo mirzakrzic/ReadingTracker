@@ -1,7 +1,9 @@
 package com.readingtrackerapp.activities;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -50,6 +52,8 @@ public class AddNewBookActivity extends AppCompatActivity {
         public void run() {
             try {
                 Thread.sleep(1000); // As I am using LENGTH_LONG in SnackBar
+                Intent returnIntent = new Intent();
+                setResult(Activity.RESULT_CANCELED, returnIntent);
                 AddNewBookActivity.this.finish();
             } catch (Exception e) {
                 e.printStackTrace();
