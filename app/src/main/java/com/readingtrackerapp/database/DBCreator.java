@@ -118,9 +118,11 @@ public class DBCreator extends SQLiteOpenHelper {
             values.put(BOOK.COLUMN_RATING,-1);
             values.put(BOOK.COLUMN_GENRE_ID,"1");
             values.put(BOOK.COLUMN_ALREADY_READ,0);
+
             values.put(BOOK.COLUMN_CURRENTLY_READING,i%2!=0?0:1);
             values.put(BOOK.COLUMN_FOR_READING,i%2==0?0:1);
             values.put(BOOK.COLUMN_NUMBER_OF_READ_PAGES,"0");
+
             values.putNull(BOOK.COLUMN_NOTIFICATION_TIME);
 
             long num=db.insert(BOOK.TABLE_NAME,null,values);

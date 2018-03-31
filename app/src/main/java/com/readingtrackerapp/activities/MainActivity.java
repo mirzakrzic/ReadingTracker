@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
         InitializeNavDrawer();
     }
 
+
     private void setAlarms() {
 
         MyAlarmManager myAlarmManager=new MyAlarmManager(getApplicationContext());
@@ -104,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
 
     // user registration
     private void isUserRegistered() {
