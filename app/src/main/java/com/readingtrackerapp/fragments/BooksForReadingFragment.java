@@ -16,6 +16,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.readingtrackerapp.R;
@@ -61,7 +62,7 @@ public class BooksForReadingFragment extends Fragment {
         adapter = new BooksForReadingListAdapter(getActivity().getApplicationContext(), dbHandler.getBookForReading(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT), CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         Log.e("Count_of_rows",String.valueOf(adapter.getCount()));
         listView.setAdapter(adapter);
-        //registerForContextMenu(listView);//Adding context menu, need to inflate with onCreateContextMenu
+        registerForContextMenu(listView);//Adding context menu, need to inflate with onCreateContextMenu
 
         return view;
     }
@@ -72,6 +73,8 @@ public class BooksForReadingFragment extends Fragment {
         MenuInflater inflater=getActivity().getMenuInflater();
         inflater.inflate(R.menu.context_menu,menu);
     }
+
+
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {

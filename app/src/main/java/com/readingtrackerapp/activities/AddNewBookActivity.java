@@ -180,8 +180,17 @@ public class AddNewBookActivity extends AppCompatActivity {
 
     public void saveBook(View view) {
 
+
+        if(title.getText().toString().isEmpty() ||author.getText().toString().isEmpty() || numberOfPages.getText().toString().isEmpty())
+        {
+            Toast.makeText(this,"Error invalid data or missing",Toast.LENGTH_LONG).show();
+            return;
+
+        }
+
         // saving book
         int id=dbHandler.insertBook(title.getText().toString(),Integer.parseInt(numberOfPages.getText().toString()),author.getText().toString(),genreId,getNotificationsCheckBox.isChecked()?CalendarHelper.getDateInString(calendar):null,setCurrentlyOnReadingCheckBox.isChecked());
+
 
         // setting notification if getNotificationCheckBox is checked
         if(getNotificationsCheckBox.isChecked()) {
