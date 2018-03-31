@@ -11,6 +11,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,11 +44,12 @@ public class MainActivity extends AppCompatActivity {
         // checks if user is registered
         isUserRegistered();
 
-//        // set toolbar and options menu for sorting books
-//        setToolbar();
-//
-//        // set view pager
-//        setViewPager();
+
+        // set toolbar and options menu for sorting books
+        setToolbar();
+
+        // set view pager
+        setViewPager();
 
         //initialize nav drawer and put username in header
         InitializeNavDrawer();
@@ -57,8 +59,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void InitializeNavDrawer()
     {
-        setToolbar();
-        setViewPager();
+
         // NavigationView
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
 
@@ -72,8 +73,6 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-
 
     }
 
@@ -110,8 +109,12 @@ public class MainActivity extends AppCompatActivity {
 
         // setting view pager with fragments and titles to show on tabs
         TabAdapter adapter = new TabAdapter(getSupportFragmentManager());
+
+
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
+
+        dbHandler.getCountOfRecords();
 
     }
 

@@ -7,8 +7,11 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
+
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -56,9 +59,18 @@ public class BooksForReadingFragment extends Fragment {
         // setting list view
         listView = view.findViewById(R.id.listView);
         adapter = new BooksForReadingListAdapter(getActivity().getApplicationContext(), dbHandler.getBookForReading(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT), CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        Log.e("Count_of_rows",String.valueOf(adapter.getCount()));
         listView.setAdapter(adapter);
+        //registerForContextMenu(listView);//Adding context menu, need to inflate with onCreateContextMenu
 
         return view;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater=getActivity().getMenuInflater();
+        inflater.inflate(R.menu.context_menu,menu);
     }
 
     @Override

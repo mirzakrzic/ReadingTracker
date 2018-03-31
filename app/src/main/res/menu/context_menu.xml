@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:id="@+id/books_for_reading">
+        <item android:id="@+id/books_details" android:title="Book details" />
+        <item android:id="@+id/books_readingTrack" android:title="Add read pages" />
+        <item android:id="@+id/books_comment" android:title="Add comment on book" />
+
+    </group>
+</menu>

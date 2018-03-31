@@ -179,6 +179,20 @@ public class DBHandler {
 
         // querying db
         Cursor c = builder.query(db, new String[]{BOOK.TABLE_NAME + "." + BOOK.COLUMN_ID, "((" + BOOK.COLUMN_NUMBER_OF_READ_PAGES + "*100)/" + BOOK.COLUMN_NUMBER_OF_PAGES + ") as PERCENTAGE", BOOK.COLUMN_TITLE, BOOK.COLUMN_NUMBER_OF_PAGES, BOOK.COLUMN_AUTHOR_NAME, BOOK.COLUMN_GENRE_ID, GENRE.COLUMN_NAME, BOOK.COLUMN_RATING, BOOK.COLUMN_CURRENTLY_READING, BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES}, selection, arguments, null, null, orderColumn + (ascending ? " ASC" : " DESC"));
+
+        String msg="";
+        int cc=c.getColumnCount();
+
+        while(c.moveToNext()) {
+
+            for (int i=0;i<cc;i++)
+            {
+                msg+=c.getString(i)+" - ";
+            }
+
+            Log.e("Data retrieved: ", msg);
+            msg="";
+        }
         return c;
 
     }
@@ -229,6 +243,13 @@ public class DBHandler {
 
         Cursor c=builder.query(db,new String[]{BOOK.TABLE_NAME+"."+ BOOK.COLUMN_ID, BOOK.COLUMN_TITLE, BOOK.COLUMN_NUMBER_OF_PAGES, BOOK.COLUMN_AUTHOR_NAME, BOOK.COLUMN_GENRE_ID, GENRE.COLUMN_NAME, BOOK.COLUMN_RATING, BOOK.COLUMN_CURRENTLY_READING, BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES}, selection,arguments,null,null, orderColumn+(ascending?" ASC":" DESC"));
         return c;
+    }
+
+    public void getCountOfRecords()
+    {
+        Cursor c=db.query(BOOK.TABLE_NAME,new String[]{BOOK.COLUMN_ID},null,null,null,null,null);
+
+         Log.e("Row_count",String.valueOf(c.getCount()));
     }
 
 }

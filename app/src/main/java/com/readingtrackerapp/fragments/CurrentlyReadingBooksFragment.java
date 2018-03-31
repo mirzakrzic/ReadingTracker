@@ -57,6 +57,7 @@ public class CurrentlyReadingBooksFragment extends Fragment {
         listView = view.findViewById(R.id.listView);
 
         adapter = new CurrentlyReadingBooksListAdapter(getActivity().getApplicationContext(), dbHandler.getCurrentlyReadingBooks(ASCENDING_ORDER, SORTING_COLUMN,SEARCH_TEXT), CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        Log.e("Count_of_rows",String.valueOf(adapter.getCount()));
         listView.setAdapter(adapter);
 
         return view;
