@@ -1,8 +1,11 @@
 package com.readingtrackerapp.database;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import com.readingtrackerapp.database.DBContractClass.BOOK;
 import com.readingtrackerapp.database.DBContractClass.COMMENT;
@@ -10,6 +13,8 @@ import com.readingtrackerapp.database.DBContractClass.GENRE;
 import com.readingtrackerapp.database.DBContractClass.MONTHLY_GOAL;
 import com.readingtrackerapp.database.DBContractClass.READING_EVIDENTION;
 import com.readingtrackerapp.database.DBContractClass.USER;
+
+import java.util.Random;
 
 
 /**
@@ -90,6 +95,54 @@ public class DBCreator extends SQLiteOpenHelper {
         db.execSQL(CREATE_TABLE_MONTHLY_GOALS);
         db.execSQL(CREATE_TABLE_READING_EVIDENTIONS);
         db.execSQL(CREATE_TABLE_COMMENTS);
+
+
+        String[] genres=new String[]{
+                "Fiction","Novel","Science Fiction","Poetry","Romance Novel","Horror fiction"
+        };
+
+        for (int i=0;i<genres.length;i++) {
+            ContentValues values = new ContentValues();
+            values.put(GENRE.COLUMN_NAME,genres[i].toString());
+            db.insert(GENRE.TABLE_NAME, null,values);
+        }
+
+
+        Random random_num=new Random();
+        for (int i=0;i<20;i++)
+        {
+            ContentValues values=new ContentValues();
+            values.put(BOOK.COLUMN_TITLE,"Title #"+String.valueOf(i));
+            values.put(BOOK.COLUMN_NUMBER_OF_PAGES,50+random_num.nextInt(1000));
+            values.put(BOOK.COLUMN_AUTHOR_NAME,"Author #"+String.valueOf(i));
+            values.put(BOOK.COLUMN_RATING,-1);
+            values.put(BOOK.COLUMN_GENRE_ID,"1");
+            values.put(BOOK.COLUMN_ALREADY_READ,random_num.nextInt(1));
+            values.put(BOOK.COLUMN_CURRENTLY_READING,random_num.nextInt(1));
+            values.put(BOOK.COLUMN_FOR_READING,random_num.nextInt(1));
+            values.put(BOOK.COLUMN_NUMBER_OF_READ_PAGES,random_num.nextInt(1000));
+            values.putNull(BOOK.COLUMN_NOTIFICATION_TIME);
+
+            long num=db.insert(BOOK.TABLE_NAME,null,values);
+            if(num!=-1){
+                Log.e("Inserted data"," Inserted row(ID): "+String.valueOf(num));
+            }
+
+        }
+        Cursor cursor = db.query(BOOK.TABLE_NAME,new String[]{String.valueOf(BOOK.COLUMN_ID),BOOK.COLUMN_TITLE,BOOK.COLUMN_AUTHOR_NAME,BOOK.COLUMN_NUMBER_OF_PAGES},null,null,null,null,null);
+        int cc=cursor.getCount();
+        Log.e("Columns_count", String.valueOf(cc));
+        String rowContent = "";
+
+        while(cursor.moveToNext()){
+            for (int i=0;i<4;i++)
+            {
+                rowContent+=cursor.getString(i)+" - ";
+            }
+            Log.e("Row "+String.valueOf(cursor.getPosition()),rowContent);
+            rowContent="";
+        }
+        cursor.close();
 
     }
 
