@@ -2,6 +2,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
         <item android:id="@+id/books_details" android:title="Book details" />
-        <item android:id="@+id/books_readingTrack" android:title="Add read pages" />
-        <item android:id="@+id/books_comment" android:title="Add comment on book" />
+        <item android:id="@+id/books_addToReading" android:title="Add to reading" />
+        <item android:id="@+id/books_delete" android:title="Delete book"/>
 </menu>

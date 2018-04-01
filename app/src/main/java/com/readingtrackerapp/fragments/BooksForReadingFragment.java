@@ -1,11 +1,16 @@
 package com.readingtrackerapp.fragments;
 
+import android.content.ContentValues;
+import android.content.DialogInterface;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.CursorAdapter;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -17,16 +22,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.readingtrackerapp.R;
 import com.readingtrackerapp.adapters.BooksForReadingListAdapter;
 import com.readingtrackerapp.database.DBHandler;
 import com.readingtrackerapp.database.DBContractClass.*;
+import com.readingtrackerapp.model.Book;
 
-/**
- * Created by Anes on 3/24/2018.
- */
 
 public class BooksForReadingFragment extends Fragment {
 
@@ -35,6 +40,7 @@ public class BooksForReadingFragment extends Fragment {
     BooksForReadingListAdapter adapter;
     Menu sortingMenu;
     boolean ASCENDING_ORDER = true;
+    int selected_bookId;
     String SORTING_COLUMN = BOOK.COLUMN_TITLE;
     String SEARCH_TEXT = "";
     String sortByTextForSnackBar = "title";
@@ -64,6 +70,15 @@ public class BooksForReadingFragment extends Fragment {
         listView.setAdapter(adapter);
         registerForContextMenu(listView);//Adding context menu, need to inflate with onCreateContextMenu
 
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long l) {
+               Cursor c= (Cursor) parent.getItemAtPosition(position);
+               selected_bookId=c.getInt(c.getColumnIndex(BOOK.COLUMN_ID));
+               Toast.makeText(getActivity().getBaseContext(),"Selected book ID: "+String.valueOf(selected_bookId), Toast.LENGTH_LONG).show();
+            }
+        });
         return view;
     }
 
@@ -71,9 +86,60 @@ public class BooksForReadingFragment extends Fragment {
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater=getActivity().getMenuInflater();
-        inflater.inflate(R.menu.context_menu,menu);
+        inflater.inflate(R.menu.context_menu_books_for_reading,menu);
     }
 
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.books_details:
+
+
+                return true;
+            case R.id.books_addToReading:
+                addToReading();
+                return true;
+            case R.id.books_delete:
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
+
+    public void addToReading(){
+        new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.move_book_to_reading))
+                .setMessage(getString(R.string.add_to_reading))
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                        String whereClause=BOOK.COLUMN_ID+"=?";
+                        String[] args={String.valueOf(selected_bookId)};
+
+
+                        ContentValues values=new ContentValues();
+                        values.put(BOOK.COLUMN_CURRENTLY_READING,1);
+                        values.put(BOOK.COLUMN_FOR_READING, 0);
+
+                        boolean updated=dbHandler.updateBook(values,whereClause,args);
+
+                        if (updated)
+                        {
+                            Log.e("Updated books ",String.valueOf(updated));
+                            adapter=new BooksForReadingListAdapter(getActivity().getApplicationContext(), dbHandler.getBookForReading(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT), CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+                            adapter.notifyDataSetChanged();
+
+                        }
+                        else
+                        {
+                            Log.e("Updated books ","Book update failed");
+                        }
+
+                    }})
+                .setNegativeButton(android.R.string.no, null).show();
+    }
 
 
     @Override

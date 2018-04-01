@@ -2,4 +2,6 @@
     <string name="app_name">ReadingTrackerApp</string>
     <string name="open">Open</string>
     <string name="close">Close</string>
+    <string name="move_book_to_reading">Move to books on reading?</string>
+    <string name="add_to_reading">Do you want to add book on reading?</string>
 </resources>
