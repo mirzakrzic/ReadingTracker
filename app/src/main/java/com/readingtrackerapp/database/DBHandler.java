@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.readingtrackerapp.database.DBContractClass.BOOK;
 import com.readingtrackerapp.database.DBContractClass.GENRE;
@@ -244,6 +245,22 @@ public class DBHandler {
         }
 
         Cursor c=builder.query(db,new String[]{BOOK.TABLE_NAME+"."+ BOOK.COLUMN_ID, BOOK.COLUMN_TITLE, BOOK.COLUMN_NUMBER_OF_PAGES, BOOK.COLUMN_AUTHOR_NAME, BOOK.COLUMN_GENRE_ID, GENRE.COLUMN_NAME, BOOK.COLUMN_RATING, BOOK.COLUMN_CURRENTLY_READING, BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES}, selection,arguments,null,null, orderColumn+(ascending?" ASC":" DESC"));
+        //Cursor c = builder.query(db, new String[]{BOOK.TABLE_NAME + "." + BOOK.COLUMN_ID, "((" + BOOK.COLUMN_NUMBER_OF_READ_PAGES + "*100)/" + BOOK.COLUMN_NUMBER_OF_PAGES + ") as PERCENTAGE", BOOK.COLUMN_TITLE, BOOK.COLUMN_NUMBER_OF_PAGES, BOOK.COLUMN_AUTHOR_NAME, BOOK.COLUMN_GENRE_ID, GENRE.COLUMN_NAME, BOOK.COLUMN_RATING, BOOK.COLUMN_CURRENTLY_READING, BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES}, selection, arguments, null, null, orderColumn + (ascending ? " ASC" : " DESC"));
+
+        String msg="";
+        int cc=c.getColumnCount();
+
+        while(c.moveToNext()) {
+
+            for (int i=0;i<cc;i++)
+            {
+                msg+=c.getString(i)+" - ";
+            }
+
+            Log.e("Data retrieved bfr: ", msg);
+            msg="";
+        }
+
         return c;
     }
     public Cursor getBooksForSettingAlarmAfterReboot(){
@@ -257,6 +274,17 @@ public class DBHandler {
         Cursor c=db.query(BOOK.TABLE_NAME,new String[]{BOOK.COLUMN_ID},null,null,null,null,null);
 
          Log.e("Row_count",String.valueOf(c.getCount()));
+    }
+
+
+    public boolean updateBook(ContentValues values,String whereClause,String[] args)
+    {
+        boolean update=false;
+        int updated_rows=db.update(BOOK.TABLE_NAME,values,whereClause,args);
+        Toast.makeText(this.context,"Updated rows "+String.valueOf(updated_rows),Toast.LENGTH_SHORT).show();
+        if(updated_rows!=0) return true;
+        return update;
+
     }
 
 }

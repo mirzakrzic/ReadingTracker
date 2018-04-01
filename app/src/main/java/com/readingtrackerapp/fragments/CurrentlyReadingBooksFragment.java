@@ -8,12 +8,14 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.readingtrackerapp.R;
@@ -59,8 +61,37 @@ public class CurrentlyReadingBooksFragment extends Fragment {
         adapter = new CurrentlyReadingBooksListAdapter(getActivity().getApplicationContext(), dbHandler.getCurrentlyReadingBooks(ASCENDING_ORDER, SORTING_COLUMN,SEARCH_TEXT), CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         Log.e("Count_of_rows",String.valueOf(adapter.getCount()));
         listView.setAdapter(adapter);
+        registerForContextMenu(listView);
 
         return view;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater=getActivity().getMenuInflater();
+        inflater.inflate(R.menu.context_menu_book_on_reading,menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.books_details:
+
+                return true;
+            case R.id.books_readingTrack:
+
+                return true;
+
+            case R.id.books_comment:
+
+                return true;
+            case R.id.books_delete:
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
     }
 
     @Override
