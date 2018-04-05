@@ -2,6 +2,7 @@ package com.readingtrackerapp.fragments;
 
 import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,13 +25,17 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.readingtrackerapp.R;
+import com.readingtrackerapp.activities.BookDetails;
 import com.readingtrackerapp.adapters.BooksForReadingListAdapter;
 import com.readingtrackerapp.database.DBHandler;
 import com.readingtrackerapp.database.DBContractClass.*;
 import com.readingtrackerapp.model.Book;
+
+import org.w3c.dom.Text;
 
 
 public class BooksForReadingFragment extends Fragment {
@@ -70,15 +75,17 @@ public class BooksForReadingFragment extends Fragment {
         listView.setAdapter(adapter);
         registerForContextMenu(listView);//Adding context menu, need to inflate with onCreateContextMenu
 
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long l) {
-               Cursor c= (Cursor) parent.getItemAtPosition(position);
-               selected_bookId=c.getInt(c.getColumnIndex(BOOK.COLUMN_ID));
-               Toast.makeText(getActivity().getBaseContext(),"Selected book ID: "+String.valueOf(selected_bookId), Toast.LENGTH_LONG).show();
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
+                Cursor c = (Cursor) adapterView.getItemAtPosition(position);
+                selected_bookId=c.getInt(c.getColumnIndex(BOOK.COLUMN_ID));
+                listView.showContextMenu();
+                Toast.makeText(getActivity().getBaseContext(),"SELECTED BOOK_ID"+String.valueOf(selected_bookId),Toast.LENGTH_SHORT).show();
+                return true;
             }
         });
+
         return view;
     }
 
@@ -94,14 +101,16 @@ public class BooksForReadingFragment extends Fragment {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case R.id.books_details:
-
+                Intent intent=new Intent(getActivity(), BookDetails.class);
+                intent.putExtra("BookID",String.valueOf(selected_bookId));
+                startActivity(intent);
 
                 return true;
             case R.id.books_addToReading:
                 addToReading();
-                return true;
+
             case R.id.books_delete:
-                return true;
+                deleteFromList();
             default:
                 return super.onContextItemSelected(item);
         }
@@ -128,13 +137,40 @@ public class BooksForReadingFragment extends Fragment {
                         if (updated)
                         {
                             Log.e("Updated books ",String.valueOf(updated));
-                            adapter=new BooksForReadingListAdapter(getActivity().getApplicationContext(), dbHandler.getBookForReading(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT), CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-                            adapter.notifyDataSetChanged();
+                            adapter.changeCursor(dbHandler.getBookForReading(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
 
                         }
                         else
                         {
                             Log.e("Updated books ","Book update failed");
+                        }
+
+                    }})
+                .setNegativeButton(android.R.string.no, null).show();
+    }
+
+
+    public void deleteFromList(){
+        new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.delete_book))
+                .setMessage(getString(R.string.delete_book_text))
+                .setIcon(android.R.drawable.ic_delete)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                        String whereClause=BOOK.COLUMN_ID+"=?";
+                        String[] args={String.valueOf(selected_bookId)};
+
+
+                        boolean deleted=dbHandler.deleteBook(whereClause,args);
+
+                        if (deleted)
+                        {
+                            adapter.changeCursor(dbHandler.getBookForReading(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
+                        }
+                        else
+                        {
+                            Log.e("Delete books ","Book delete failed");
                         }
 
                     }})

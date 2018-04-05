@@ -42,6 +42,7 @@ public class CurrentlyReadingBooksListAdapter extends CursorAdapter {
         ((TextView)view.findViewById(R.id.genre)).setText(cursor.getString(cursor.getColumnIndex(DBContractClass.GENRE.COLUMN_NAME)));
         ((ImageView)view.findViewById(R.id.imageView)).setImageResource(R.drawable.ic_book);
 
+
         // setting progres bar
         ProgressBar progressBar=(ProgressBar)view.findViewById(R.id.progressBar);
         progressBar.getProgressDrawable().setColorFilter(
@@ -52,8 +53,8 @@ public class CurrentlyReadingBooksListAdapter extends CursorAdapter {
         int percentOfReadPages=(int)(cursor.getInt(cursor.getColumnIndex("PERCENTAGE")));
 
             // set percent to progres bar and progress text view
-        progressBar.setProgress(percentOfReadPages);
-        ((TextView)view.findViewById(R.id.progresTxt)).setText(percentOfReadPages+"% READ");
+        progressBar.setProgress(50);
+        ((TextView)view.findViewById(R.id.progresTxt)).setText(50+"% READ");
 
     }
 
