@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.util.Log;
+import android.widget.CursorAdapter;
 import android.widget.Toast;
 
 import com.readingtrackerapp.database.DBContractClass.BOOK;
@@ -307,5 +308,27 @@ public class DBHandler {
         long inserted=db.insert(DBContractClass.COMMENT.TABLE_NAME,null,values);
 
         return inserted!=0?true:false;
+    }
+
+
+    public Cursor getCommentsForBook(String bookID)
+    {
+        Cursor c;
+        SQLiteQueryBuilder queryBuilder=new SQLiteQueryBuilder();
+        queryBuilder.setTables(DBContractClass.COMMENT.TABLE_NAME+" join "+BOOK.TABLE_NAME+" on "+ DBContractClass.COMMENT.TABLE_NAME+"."+ DBContractClass.COMMENT.COLUMN_BOOK_ID+"="+BOOK.TABLE_NAME+"."+BOOK.COLUMN_ID);
+
+        String selection= DBContractClass.COMMENT.COLUMN_BOOK_ID+"=?";
+        String[] arguments={bookID};
+
+        try{
+            c=queryBuilder.query(db,new String[]{DBContractClass.COMMENT.TABLE_NAME+"."+ DBContractClass.COMMENT.COLUMN_ID, DBContractClass.COMMENT.COLUMN_COMMENT, DBContractClass.COMMENT.COLUMN_DATE},selection,arguments,null,null, DBContractClass.COMMENT.COLUMN_DATE);
+        }
+        catch (Exception e){
+            Log.e("Comment retrieve","Something went wrong!");
+            c=null;
+
+        }
+        return c;
+
     }
 }

@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Layout;
 import android.view.View;
+import android.widget.CursorAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -13,6 +14,7 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.readingtrackerapp.R;
+import com.readingtrackerapp.adapters.CommentsListAdapter;
 import com.readingtrackerapp.database.DBHandler;
 import com.readingtrackerapp.model.Book;
 import com.readingtrackerapp.model.Genre;
@@ -25,6 +27,7 @@ public class BookDetails extends AppCompatActivity {
     String bookID;
     ListView listView;
     DBHandler dbHandler;
+    CommentsListAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +56,7 @@ public class BookDetails extends AppCompatActivity {
         ratingBar=(RatingBar) findViewById(R.id.ratingBar);
         progressBar=(ProgressBar)findViewById(R.id.progressBar);
         progressBarText=(TextView) findViewById(R.id.progresTxt);
-
+        listView=(ListView) findViewById(R.id.book_comments);
     }
 
     public void bindData() {
@@ -73,10 +76,8 @@ public class BookDetails extends AppCompatActivity {
             progressBar.setProgress(0);
         }
 
-        if(book.isReadingCurrently())
-        {
-
-        }
+        adapter=new CommentsListAdapter(this,dbHandler.getCommentsForBook(bookID), CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        listView.setAdapter(adapter);
 
     }
 
