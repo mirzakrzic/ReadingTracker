@@ -30,7 +30,7 @@ public class Book {
         this.alreadyRead=alreadyRead;
         this.forReading=forReading;
         this.timeForNotification=timeForNotification;
-        this.numberOfPages=numberOfPages;
+        this.numberOfReadPages=numberOfReadPages;
     }
 
 

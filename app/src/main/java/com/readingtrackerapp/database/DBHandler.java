@@ -14,6 +14,7 @@ import com.readingtrackerapp.database.DBContractClass.USER;
 import com.readingtrackerapp.model.Book;
 import com.readingtrackerapp.model.Genre;
 import com.readingtrackerapp.model.User;
+import com.readingtrackerapp.helper.CalendarHelper;
 
 /**
  * Created by Anes on 3/23/2018.
@@ -223,6 +224,7 @@ public class DBHandler {
         Cursor c=builder.query(db,new String[]{BOOK.TABLE_NAME+"."+ BOOK.COLUMN_ID, BOOK.COLUMN_TITLE, BOOK.COLUMN_NUMBER_OF_PAGES, BOOK.COLUMN_AUTHOR_NAME, BOOK.COLUMN_GENRE_ID, GENRE.COLUMN_NAME, BOOK.COLUMN_RATING, BOOK.COLUMN_CURRENTLY_READING, BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES}, selection,arguments,null,null, orderColumn+(ascending?" ASC":" DESC"));
         return c;
     }
+
     public Cursor getBookForReading(boolean ascending,String orderColumn, String bookTitle){
 
         // same comments for getCurrentlyReading books
@@ -287,4 +289,23 @@ public class DBHandler {
 
     }
 
+    public boolean deleteBook(String whereClause,String[]args)
+    {
+        boolean update=false;
+        int deleted_rows=db.delete(BOOK.TABLE_NAME,whereClause,args);
+        Toast.makeText(this.context,"Deleted rows "+String.valueOf(deleted_rows),Toast.LENGTH_SHORT).show();
+        if(deleted_rows!=0) return true;
+        return update;
+    }
+
+    public boolean insertComment(String bookID,String comment)
+    {
+        ContentValues values=new ContentValues();
+        values.put(DBContractClass.COMMENT.COLUMN_BOOK_ID,bookID);
+        values.put(DBContractClass.COMMENT.COLUMN_COMMENT,comment);
+        values.put(DBContractClass.COMMENT.COLUMN_DATE,CalendarHelper.getCurrentlyDateInString());
+        long inserted=db.insert(DBContractClass.COMMENT.TABLE_NAME,null,values);
+
+        return inserted!=0?true:false;
+    }
 }

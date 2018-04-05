@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.readingtrackerapp"
-    android:installLocation="preferExternal"
-    >
+    android:installLocation="preferExternal">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
@@ -13,7 +12,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <activity android:name=".activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -21,22 +19,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".activities.RegisterUser" />
 
         <receiver android:name=".alarmManager.MyReceiver" />
 
         <activity android:name=".activities.RecordReading" />
-
         <activity android:name=".activities.AddNewBookActivity" />
 
         <receiver android:name=".alarmManager.BroadcastReceiverAfterReboot">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
+
         <service android:name=".alarmManager.AfterRebootService" />
 
+        <activity android:name=".activities.BookDetails"></activity>
     </application>
+
 </manifest>
