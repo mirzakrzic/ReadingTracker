@@ -1,5 +1,6 @@
 package com.readingtrackerapp.fragments;
 
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -7,6 +8,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.AlertDialog;
@@ -23,11 +26,11 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RatingBar;
 import android.widget.Toast;
 
 import com.readingtrackerapp.R;
 import com.readingtrackerapp.activities.BookDetails;
-import com.readingtrackerapp.activities.MainActivity;
 import com.readingtrackerapp.adapters.CurrentlyReadingBooksListAdapter;
 import com.readingtrackerapp.alarmManager.MyAlarmManager;
 import com.readingtrackerapp.database.DBContractClass;
@@ -111,7 +114,7 @@ public class CurrentlyReadingBooksFragment extends Fragment {
                 startActivity(intent);
                 return true;
             case R.id.books_readingTrack:
-
+                addReadPages();
                 return true;
 
             case R.id.books_comment:
@@ -267,8 +270,119 @@ public class CurrentlyReadingBooksFragment extends Fragment {
 
             }
         });
+    }
 
 
+    public void addReadPages(){
+        //setting up alert dialog which is gonna serve to get number of read pages
+        AlertDialog.Builder alert_builder=new AlertDialog.Builder(getActivity());
+        View view= getLayoutInflater().inflate(R.layout.add_read_pages_layout,null);
+        final EditText readPages=(EditText) view.findViewById(R.id.input_read_pages);
+        Button btnSave=(Button) view.findViewById(R.id.save_numReadPages_btn);
+
+        alert_builder.setView(view);
+        final AlertDialog dialog=alert_builder.create();
+        dialog.show();
+
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                int currently_read_pages = dbHandler.getNumberOfReadPages(String.valueOf(selected_bookId));
+                int total_num_of_pages = dbHandler.getNumberOPages(String.valueOf(selected_bookId));
+                int input_readPages = Integer.parseInt(readPages.getText().toString());
+                int new_value = currently_read_pages + input_readPages;
+
+                if (new_value >= total_num_of_pages) {
+
+                    final ContentValues contentValues = new ContentValues();
+                    contentValues.put(DBContractClass.BOOK.COLUMN_FOR_READING, "0");
+                    contentValues.put(DBContractClass.BOOK.COLUMN_CURRENTLY_READING, "0");
+                    contentValues.put(DBContractClass.BOOK.COLUMN_ALREADY_READ, "1");
+                    contentValues.put(DBContractClass.BOOK.COLUMN_NUMBER_OF_READ_PAGES,total_num_of_pages);
+
+                    //in case that user entered bigger number of pages, we are setting up new alert to ask does he rlly want to save it
+
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle(getString(R.string.book_read))
+                            .setMessage(getString(R.string.congrats))
+                            .setIcon(android.R.drawable.ic_dialog_info)
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                public void onClick(final DialogInterface dialog, int whichButton) {
+                                    String whereClause = DBContractClass.BOOK.COLUMN_ID + "=?";
+                                    String[] args = {String.valueOf(selected_bookId)};
+                                    boolean updated = dbHandler.updateBook(contentValues, whereClause, args);
+
+                                    if (updated) {
+                                        //remove alarm
+                                        if(has_alarm_setup){
+                                            MyAlarmManager myAlarmManager=new MyAlarmManager(getContext());
+                                            myAlarmManager.stopAlarmForBook(String.valueOf(selected_bookId));
+                                            Log.e("Alarm","Alarm turned of for book: "+String.valueOf(selected_bookId));
+                                        }
+
+                                    //if everything is alright, rate the book
+                                        AlertDialog.Builder alert_builder_rating=new AlertDialog.Builder(getActivity());
+                                        View view= getLayoutInflater().inflate(R.layout.rate_the_book,null);
+                                        RatingBar ratingBar=(RatingBar) view.findViewById(R.id.input_rate);
+
+                                        alert_builder_rating.setView(view);
+                                        final AlertDialog dialog1=alert_builder_rating.create();
+                                        dialog1.show();
+
+                                        ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+                                            @Override
+                                            public void onRatingChanged(RatingBar ratingBar, float v, boolean b) {
+
+                                                final int rating= (int)ratingBar.getRating() ;
+
+                                                final ContentValues contentValues_rating = new ContentValues();
+                                                contentValues_rating.put(DBContractClass.BOOK.COLUMN_RATING,rating);
+
+                                                if(dbHandler.updateBook(contentValues_rating, DBContractClass.BOOK.COLUMN_ID+"=?",new String[]{String.valueOf(selected_bookId)}))
+                                                {
+                                                    dialog1.hide();
+
+                                                    Intent intent=new Intent(getActivity(), BookDetails.class);
+                                                    intent.putExtra("BookID",String.valueOf(selected_bookId));
+                                                    startActivity(intent);
+                                                }
+
+                                            }
+                                        });
+
+                                        adapter.changeCursor(dbHandler.getCurrentlyReadingBooks(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
+
+
+                                    } else {
+                                        Log.e("Book_read", "Book moved to read - FALSE");
+                                    }
+
+                                }
+                            })
+                            .setNegativeButton(android.R.string.no, null).show();
+                    dialog.hide();
+                } else {
+
+                    final ContentValues contentValues = new ContentValues();
+                    contentValues.put(DBContractClass.BOOK.COLUMN_NUMBER_OF_READ_PAGES,new_value);
+                    String whereClause = DBContractClass.BOOK.COLUMN_ID + "=?";
+                    String[] args = {String.valueOf(selected_bookId)};
+                    //if book is not read totally just update number of read pages.
+                    boolean updated = dbHandler.updateBook(contentValues,whereClause,args);
+
+                    if(updated)
+                    {
+                        adapter.changeCursor(dbHandler.getCurrentlyReadingBooks(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
+                        Toast.makeText(getActivity().getBaseContext(),"Added read pages",Toast.LENGTH_SHORT).show();
+                        dialog.hide();
+                    }
+                    else{
+                        Log.e("Book_read", "Book moved to read - FALSE");
+                    }
+                }
+            }
+        });
 
     }
 

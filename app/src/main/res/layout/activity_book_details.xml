@@ -5,7 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.readingtrackerapp.activities.BookDetails">
+    tools:context="com.readingtrackerapp.activities.BookDetails"
+    android:background="@color/colorDarkGrey"
+    >
 
     <ImageView
         android:id="@+id/imageView2"
@@ -14,6 +16,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:src="@drawable/ic_book"
+
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -27,7 +30,7 @@
         android:text="Book title"
         android:textAllCaps="true"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-        android:textColor="@color/colorBlack"
+        android:textColor="@color/colorWhite"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.152"
@@ -43,7 +46,7 @@
         android:layout_marginTop="16dp"
         android:text="Author"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
-        android:textColor="@color/colorDarkGrey"
+        android:textColor="@color/colorWhite"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.101"
@@ -52,17 +55,18 @@
 
     <RatingBar
         android:id="@+id/ratingBar"
-        style="@style/Widget.AppCompat.RatingBar.Small"
+        style="@style/Widget.AppCompat.RatingBar.Indicator"
         android:layout_width="wrap_content"
-        android:layout_height="12dp"
+        android:layout_height="40dp"
         android:layout_gravity="center"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:layout_weight="1"
         android:numStars="5"
         android:stepSize="1"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.659"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/book_author" />
 
@@ -105,6 +109,8 @@
             android:text="Book genre"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@color/colorWhite"
+
 
             />
 
@@ -115,6 +121,8 @@
             android:text="Number of pages"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@color/colorWhite"
+
 
             />
 
@@ -141,6 +149,8 @@
             android:layout_weight="1"
             android:text="50% READ"
             android:textAlignment="center"
+            android:textColor="@color/colorWhite"
+
             android:textSize="10sp" />
 
         <ProgressBar
@@ -174,7 +184,8 @@
             android:text="Comments"
             android:textAlignment="center"
             android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-            android:textColor="@color/colorDarkGrey" />
+            android:textColor="@color/colorWhite"
+            />
 
         <ListView
             android:id="@+id/book_comments"
