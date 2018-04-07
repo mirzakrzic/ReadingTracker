@@ -53,8 +53,8 @@ public class CurrentlyReadingBooksListAdapter extends CursorAdapter {
         int percentOfReadPages=(int)(cursor.getInt(cursor.getColumnIndex("PERCENTAGE")));
 
             // set percent to progres bar and progress text view
-        progressBar.setProgress(50);
-        ((TextView)view.findViewById(R.id.progresTxt)).setText(50+"% READ");
+        progressBar.setProgress(percentOfReadPages);
+        ((TextView)view.findViewById(R.id.progresTxt)).setText(percentOfReadPages+"% READ");
 
     }
 

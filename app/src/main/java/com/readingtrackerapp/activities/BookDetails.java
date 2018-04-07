@@ -1,6 +1,10 @@
 package com.readingtrackerapp.activities;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.LayerDrawable;
 import android.media.Rating;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -68,17 +72,38 @@ public class BookDetails extends AppCompatActivity {
         bookGenre.setText(genre.getName());
         bookNumPages.setText(String.valueOf(book.getNumberOfPages()) + " pages");
 
-        if (book.isForReading())
+        if (book.isForReading()) // checking out if book is in ForReading list, so if it is we don't need comments
         {
             LinearLayout bookCooments=(LinearLayout) findViewById(R.id.book_comments_layout);
             bookCooments.setVisibility(View.INVISIBLE);
             progressBarText.setText("0% read");
             progressBar.setProgress(0);
         }
+        if(book.isAlreadyRead())
+        {
+            progressBarText.setText("100% read");
+            progressBar.setProgress(100);
+
+            //setting rating
+            LayerDrawable stars = (LayerDrawable) ratingBar.getProgressDrawable();
+            stars.getDrawable(2).setColorFilter(Color.YELLOW, PorterDuff.Mode.SRC_ATOP);
+            ratingBar.setRating(book.getRating());
+        }
+
+
+        progressBar.getProgressDrawable().setColorFilter(
+                Color.RED, android.graphics.PorterDuff.Mode.SRC_IN);
+        progressBar.setMax(100);
+
+        // calculating percent of read pages
+        int percentOfReadPages= (int)(book.getNumberOfReadPages()*100)/book.getNumberOfPages();
+
+        // set percent to progres bar and progress text view
+        progressBar.setProgress(percentOfReadPages);
+        progressBarText.setText(percentOfReadPages+"% READ");
 
         adapter=new CommentsListAdapter(this,dbHandler.getCommentsForBook(bookID), CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         listView.setAdapter(adapter);
-
     }
 
 }

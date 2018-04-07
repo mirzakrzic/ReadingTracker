@@ -1,5 +1,7 @@
 package com.readingtrackerapp.fragments;
 
+import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -14,9 +16,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.readingtrackerapp.R;
+import com.readingtrackerapp.activities.BookDetails;
 import com.readingtrackerapp.adapters.ReadBooksListAdapter;
 import com.readingtrackerapp.database.DBContractClass;
 import com.readingtrackerapp.database.DBHandler;
@@ -35,6 +39,7 @@ public class ReadBooksFragment extends Fragment {
     String SORTING_COLUMN = DBContractClass.BOOK.COLUMN_TITLE;
     String SEARCH_TEXT="";
     String sortByTextForSnackBar="title";
+    int selected_bookId;
 
     // *** SAME COMMENTS AS BooksForReadingFragment :)
 
@@ -60,6 +65,19 @@ public class ReadBooksFragment extends Fragment {
         adapter = new ReadBooksListAdapter(getActivity().getApplicationContext(), dbHandler.getReadBooks(ASCENDING_ORDER, SORTING_COLUMN,SEARCH_TEXT), CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         Log.e("Count_of_rows",String.valueOf(adapter.getCount()));
         listView.setAdapter(adapter);
+
+        //If book is read you can check info only.
+       listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+           @Override
+           public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+               Cursor c = (Cursor) adapterView.getItemAtPosition(position);
+               selected_bookId = c.getInt(c.getColumnIndex(DBContractClass.BOOK.COLUMN_ID));
+               Intent intent=new Intent(getActivity(), BookDetails.class);
+               intent.putExtra("BookID",String.valueOf(selected_bookId));
+               startActivity(intent);
+
+           }
+       });
 
         return view;
     }

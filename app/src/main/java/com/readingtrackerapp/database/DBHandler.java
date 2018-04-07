@@ -143,6 +143,7 @@ public class DBHandler {
 
 
     }
+
     public Book getBookById(String id){
 
         Cursor c=db.query(BOOK.TABLE_NAME,new String[]{BOOK.COLUMN_ID, BOOK.COLUMN_TITLE, BOOK.COLUMN_NUMBER_OF_PAGES, BOOK.COLUMN_AUTHOR_NAME, BOOK.COLUMN_GENRE_ID, BOOK.COLUMN_RATING, BOOK.COLUMN_CURRENTLY_READING, BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES}, BOOK.COLUMN_ID+"=?",new String[]{id},null,null,null);
@@ -150,6 +151,7 @@ public class DBHandler {
         return !c.moveToNext()? null: new Book(c.getInt(0),c.getString(1),c.getInt(2),c.getString(3),c.getInt(4),c.getInt(5),c.getInt(6)>0,c.getInt(7)>0,c.getInt(8)>0,c.getString(9),c.getInt(10));
 
     }
+
     public Cursor getBooksByGenreId(String genreId){
 
         Cursor c=db.query(BOOK.TABLE_NAME,new String[]{BOOK.COLUMN_ID, BOOK.COLUMN_TITLE, BOOK.COLUMN_NUMBER_OF_PAGES, BOOK.COLUMN_AUTHOR_NAME, BOOK.COLUMN_GENRE_ID, BOOK.COLUMN_RATING, BOOK.COLUMN_CURRENTLY_READING, BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES}, BOOK.COLUMN_GENRE_ID+"=?",new String[]{genreId},null,null, BOOK.COLUMN_TITLE);
@@ -157,6 +159,7 @@ public class DBHandler {
         return c;
 
     }
+
     public Cursor getCurrentlyReadingBooks(boolean ascending,String orderColumn, String bookTitle) {
 
         SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
@@ -201,6 +204,7 @@ public class DBHandler {
         return c;
 
     }
+
     public Cursor getReadBooks(boolean ascending,String orderColumn, String bookTitle){
 
         // same comments for getCurrentlyReading books
@@ -223,6 +227,21 @@ public class DBHandler {
         }
 
         Cursor c=builder.query(db,new String[]{BOOK.TABLE_NAME+"."+ BOOK.COLUMN_ID, BOOK.COLUMN_TITLE, BOOK.COLUMN_NUMBER_OF_PAGES, BOOK.COLUMN_AUTHOR_NAME, BOOK.COLUMN_GENRE_ID, GENRE.COLUMN_NAME, BOOK.COLUMN_RATING, BOOK.COLUMN_CURRENTLY_READING, BOOK.COLUMN_ALREADY_READ, BOOK.COLUMN_FOR_READING, BOOK.COLUMN_NOTIFICATION_TIME, BOOK.COLUMN_NUMBER_OF_READ_PAGES}, selection,arguments,null,null, orderColumn+(ascending?" ASC":" DESC"));
+
+        String msg="";
+        int cc=c.getColumnCount();
+
+        while(c.moveToNext()) {
+
+            for (int i=0;i<cc;i++)
+            {
+                msg+=c.getString(i)+" - ";
+            }
+
+            Log.e("Data retrieved rb: ", msg);
+            msg="";
+        }
+
         return c;
     }
 
@@ -331,4 +350,23 @@ public class DBHandler {
         return c;
 
     }
+
+    public int getNumberOfReadPages(String bookID)
+    {
+        Cursor c=db.query(DBContractClass.BOOK.TABLE_NAME,new String[]{DBContractClass.BOOK.COLUMN_ID, DBContractClass.BOOK.COLUMN_NUMBER_OF_READ_PAGES}, DBContractClass.BOOK.COLUMN_ID+"=?",new String[]{bookID},null,null,null);
+        c.moveToNext();
+        return c.getInt(1);
+
+    }
+
+    public int getNumberOPages(String bookID)
+    {
+        Cursor c=db.query(DBContractClass.BOOK.TABLE_NAME,new String[]{DBContractClass.BOOK.COLUMN_ID, BOOK.COLUMN_NUMBER_OF_PAGES}, DBContractClass.BOOK.COLUMN_ID+"=?",new String[]{bookID},null,null,null);
+        c.moveToNext();
+        return c.getInt(1);
+
+
+    }
+
+
 }
