@@ -342,6 +342,7 @@ public class CurrentlyReadingBooksFragment extends Fragment {
                                                 if(dbHandler.updateBook(contentValues_rating, DBContractClass.BOOK.COLUMN_ID+"=?",new String[]{String.valueOf(selected_bookId)}))
                                                 {
                                                     dialog1.hide();
+                                                    adapter.changeCursor(dbHandler.getCurrentlyReadingBooks(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
 
                                                     Intent intent=new Intent(getActivity(), BookDetails.class);
                                                     intent.putExtra("BookID",String.valueOf(selected_bookId));
@@ -351,7 +352,6 @@ public class CurrentlyReadingBooksFragment extends Fragment {
                                             }
                                         });
 
-                                        adapter.changeCursor(dbHandler.getCurrentlyReadingBooks(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
 
 
                                     } else {

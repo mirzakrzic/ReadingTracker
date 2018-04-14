@@ -104,13 +104,13 @@ public class BooksForReadingFragment extends Fragment {
                 Intent intent=new Intent(getActivity(), BookDetails.class);
                 intent.putExtra("BookID",String.valueOf(selected_bookId));
                 startActivity(intent);
-
                 return true;
             case R.id.books_addToReading:
                 addToReading();
-
+                return true;
             case R.id.books_delete:
                 deleteFromList();
+                return true;
             default:
                 return super.onContextItemSelected(item);
         }
