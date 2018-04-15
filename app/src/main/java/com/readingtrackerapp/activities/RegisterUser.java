@@ -1,5 +1,6 @@
 package com.readingtrackerapp.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
@@ -52,6 +53,9 @@ public class RegisterUser extends AppCompatActivity {
 
 
         // close activity
+        Intent intent=new Intent(RegisterUser.this,RecordReading.class);
+        intent.putExtra("goal","goal");
+        startActivity(intent);
         finish();
 
     }

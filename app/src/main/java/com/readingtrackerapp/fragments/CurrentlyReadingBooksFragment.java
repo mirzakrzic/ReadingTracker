@@ -1,5 +1,6 @@
 package com.readingtrackerapp.fragments;
 
+import android.app.TimePickerDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -27,6 +28,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RatingBar;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.readingtrackerapp.R;
@@ -35,23 +37,27 @@ import com.readingtrackerapp.adapters.CurrentlyReadingBooksListAdapter;
 import com.readingtrackerapp.alarmManager.MyAlarmManager;
 import com.readingtrackerapp.database.DBContractClass;
 import com.readingtrackerapp.database.DBHandler;
+import com.readingtrackerapp.helper.CalendarHelper;
+import com.readingtrackerapp.helper.IRefreshable;
+
+import java.util.Calendar;
 
 /**
  * Created by Anes on 3/24/2018.
  */
 
-public class CurrentlyReadingBooksFragment extends Fragment {
+public class CurrentlyReadingBooksFragment extends Fragment implements IRefreshable {
 
     ListView listView;
     DBHandler dbHandler;
     CurrentlyReadingBooksListAdapter adapter;
     Menu sortingMenu;
     int selected_bookId;
-    boolean has_alarm_setup=false;
+    boolean has_alarm_setup = false;
     boolean ASCENDING_ORDER = true;
     String SORTING_COLUMN = DBContractClass.BOOK.COLUMN_TITLE;
-    String SEARCH_TEXT="";
-    String sortByTextForSnackBar="title";
+    String SEARCH_TEXT = "";
+    String sortByTextForSnackBar = "title";
 
     // *** SAME COMMENTS AS BooksForReadingFragment :)
 
@@ -73,8 +79,8 @@ public class CurrentlyReadingBooksFragment extends Fragment {
 
         listView = view.findViewById(R.id.listView);
 
-        adapter = new CurrentlyReadingBooksListAdapter(getActivity().getApplicationContext(), dbHandler.getCurrentlyReadingBooks(ASCENDING_ORDER, SORTING_COLUMN,SEARCH_TEXT), CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-        Log.e("Count_of_rows",String.valueOf(adapter.getCount()));
+        adapter = new CurrentlyReadingBooksListAdapter(getActivity().getApplicationContext(), dbHandler.getCurrentlyReadingBooks(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT), CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        Log.e("Count_of_rows", String.valueOf(adapter.getCount()));
         listView.setAdapter(adapter);
         registerForContextMenu(listView);
 
@@ -82,13 +88,12 @@ public class CurrentlyReadingBooksFragment extends Fragment {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
                 Cursor c = (Cursor) adapterView.getItemAtPosition(position);
-                selected_bookId=c.getInt(c.getColumnIndex(DBContractClass.BOOK.COLUMN_ID));
-                if(c.getString(c.getColumnIndex(DBContractClass.BOOK.COLUMN_NOTIFICATION_TIME))!=null)
-                {
-                    has_alarm_setup=true;//* check if the notification time is set-up?
+                selected_bookId = c.getInt(c.getColumnIndex(DBContractClass.BOOK.COLUMN_ID));
+                if (c.getString(c.getColumnIndex(DBContractClass.BOOK.COLUMN_NOTIFICATION_TIME)) != null) {
+                    has_alarm_setup = true;//* check if the notification time is set-up?
                 }
                 listView.showContextMenu();
-                Toast.makeText(getActivity().getBaseContext(),"SELECTED BOOK_ID: "+String.valueOf(selected_bookId),Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity().getBaseContext(), "SELECTED BOOK_ID: " + String.valueOf(selected_bookId), Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
@@ -100,8 +105,8 @@ public class CurrentlyReadingBooksFragment extends Fragment {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        MenuInflater inflater=getActivity().getMenuInflater();
-        inflater.inflate(R.menu.context_menu_book_on_reading,menu);
+        MenuInflater inflater = getActivity().getMenuInflater();
+        inflater.inflate(R.menu.context_menu_book_on_reading, menu);
     }
 
     @Override
@@ -109,14 +114,16 @@ public class CurrentlyReadingBooksFragment extends Fragment {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case R.id.books_details:
-                Intent intent=new Intent(getActivity(), BookDetails.class);
-                intent.putExtra("BookID",String.valueOf(selected_bookId));
+                Intent intent = new Intent(getActivity(), BookDetails.class);
+                intent.putExtra("BookID", String.valueOf(selected_bookId));
                 startActivity(intent);
                 return true;
             case R.id.books_readingTrack:
                 addReadPages();
                 return true;
-
+            case R.id.books_setNotifTime:
+                setNotificationTime();
+                return true;
             case R.id.books_comment:
                 addComment();
                 return true;
@@ -125,6 +132,41 @@ public class CurrentlyReadingBooksFragment extends Fragment {
             default:
                 return super.onContextItemSelected(item);
         }
+    }
+
+    private void setNotificationTime() {
+
+        new AlertDialog.Builder(getActivity())
+                .setTitle("Notifications?")
+                .setMessage("Do you really want to set new time for ntoifications for this book?")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton(
+                        android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+
+                                final Calendar calendar = Calendar.getInstance();
+
+                                int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                                int minute = calendar.get(Calendar.MINUTE);
+
+                                TimePickerDialog mTimePicker;
+                                mTimePicker = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
+                                    @Override
+                                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                                        calendar.set(Calendar.HOUR_OF_DAY, selectedHour);
+                                        calendar.set(Calendar.MINUTE, selectedMinute);
+                                        MyAlarmManager alarmManager = new MyAlarmManager(getContext());
+                                        alarmManager.setAlarmForBook(Integer.toString(selected_bookId), CalendarHelper.getDateInString(calendar));
+
+                                        dbHandler.setTimeForNotif(Integer.toString(selected_bookId),CalendarHelper.getDateInString(calendar));
+
+                                    }
+
+                                }, hour, minute, true);//Yes 24 hour time
+                                mTimePicker.setTitle("Select time for getting notifications");
+                                mTimePicker.show();}})
+                .setNegativeButton(android.R.string.no,null).show();
+
     }
 
     @Override
@@ -147,8 +189,8 @@ public class CurrentlyReadingBooksFragment extends Fragment {
                 @Override
                 public boolean onQueryTextChange(String newText) {
 
-                    SEARCH_TEXT=newText;
-                    adapter.changeCursor(dbHandler.getCurrentlyReadingBooks(ASCENDING_ORDER,SORTING_COLUMN,SEARCH_TEXT));
+                    SEARCH_TEXT = newText;
+                    adapter.changeCursor(dbHandler.getCurrentlyReadingBooks(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
 
                     return false;
                 }
@@ -194,11 +236,12 @@ public class CurrentlyReadingBooksFragment extends Fragment {
             }
             break;
 
-            default: return true;
+            default:
+                return true;
         }
 
         // retrieving new db cursor to sort data
-        adapter.changeCursor(dbHandler.getCurrentlyReadingBooks(ASCENDING_ORDER, SORTING_COLUMN,SEARCH_TEXT));
+        adapter.changeCursor(dbHandler.getCurrentlyReadingBooks(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
 
         Snackbar.make(getActivity().findViewById(R.id.content), "Sorted by " + sortByTextForSnackBar + (ASCENDING_ORDER ? " ascending" : " descending"), Snackbar.LENGTH_SHORT).show();
 
@@ -206,7 +249,7 @@ public class CurrentlyReadingBooksFragment extends Fragment {
 
     }
 
-    public void deleteFromList(){
+    public void deleteFromList() {
         new AlertDialog.Builder(getActivity())
                 .setTitle(getString(R.string.delete_book))
                 .setMessage(getString(R.string.delete_book_text))
@@ -214,41 +257,39 @@ public class CurrentlyReadingBooksFragment extends Fragment {
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
 
-                        String whereClause= DBContractClass.BOOK.COLUMN_ID+"=?";
-                        String[] args={String.valueOf(selected_bookId)};
+                        String whereClause = DBContractClass.BOOK.COLUMN_ID + "=?";
+                        String[] args = {String.valueOf(selected_bookId)};
 
-                        if(has_alarm_setup){
-                            MyAlarmManager myAlarmManager=new MyAlarmManager(getContext());
+                        if (has_alarm_setup) {
+                            MyAlarmManager myAlarmManager = new MyAlarmManager(getContext());
                             myAlarmManager.stopAlarmForBook(String.valueOf(selected_bookId));
-                            Log.e("Alarm","Alarm turned of for book: "+String.valueOf(selected_bookId));
+                            Log.e("Alarm", "Alarm turned of for book: " + String.valueOf(selected_bookId));
                         }
 
-                        boolean deleted=dbHandler.deleteBook(whereClause,args);
+                        boolean deleted = dbHandler.deleteBook(whereClause, args);
 
-                        if (deleted)
-                        {
+                        if (deleted) {
                             adapter.changeCursor(dbHandler.getCurrentlyReadingBooks(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
-                        }
-                        else
-                        {
-                            Log.e("Delete books ","Book delete failed");
+                        } else {
+                            Log.e("Delete books ", "Book delete failed");
                         }
 
-                    }})
+                    }
+                })
                 .setNegativeButton(android.R.string.no, null).show();
     }
 
 
-    public void addComment(){
+    public void addComment() {
         //creating alert dialog so that you can add comment on a go
-        Boolean saved=false;
-        AlertDialog.Builder alert_builder=new AlertDialog.Builder(getActivity());
-        View view= getLayoutInflater().inflate(R.layout.add_comment_layout,null);
-        final EditText comment=(EditText) view.findViewById(R.id.input_comment);
-        Button btnSave=(Button) view.findViewById(R.id.save_comment_btn);
+        Boolean saved = false;
+        AlertDialog.Builder alert_builder = new AlertDialog.Builder(getActivity());
+        View view = getLayoutInflater().inflate(R.layout.add_comment_layout, null);
+        final EditText comment = (EditText) view.findViewById(R.id.input_comment);
+        Button btnSave = (Button) view.findViewById(R.id.save_comment_btn);
 
         alert_builder.setView(view);
-        final AlertDialog dialog=alert_builder.create();
+        final AlertDialog dialog = alert_builder.create();
         dialog.show();
 
         btnSave.setOnClickListener(new View.OnClickListener() {
@@ -256,13 +297,11 @@ public class CurrentlyReadingBooksFragment extends Fragment {
             public void onClick(View view) {
                 String comment_text = comment.getText().toString();
 
-                if (comment_text.isEmpty())
-                {
-                    Toast.makeText(getActivity().getBaseContext(),"Comment can't be empty.",Toast.LENGTH_SHORT).show();
-                }
-                else{
-                    if (dbHandler.insertComment(String.valueOf(selected_bookId),comment_text)){
-                        Toast.makeText(getActivity().getBaseContext(),"Comment sucesfully added",Toast.LENGTH_SHORT).show();
+                if (comment_text.isEmpty()) {
+                    Toast.makeText(getActivity().getBaseContext(), "Comment can't be empty.", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (dbHandler.insertComment(String.valueOf(selected_bookId), comment_text)) {
+                        Toast.makeText(getActivity().getBaseContext(), "Comment sucesfully added", Toast.LENGTH_SHORT).show();
                         dialog.hide();
 
                     }
@@ -273,36 +312,43 @@ public class CurrentlyReadingBooksFragment extends Fragment {
     }
 
 
-    public void addReadPages(){
+    public void addReadPages() {
         //setting up alert dialog which is gonna serve to get number of read pages
-        AlertDialog.Builder alert_builder=new AlertDialog.Builder(getActivity());
-        View view= getLayoutInflater().inflate(R.layout.add_read_pages_layout,null);
-        final EditText readPages=(EditText) view.findViewById(R.id.input_read_pages);
-        Button btnSave=(Button) view.findViewById(R.id.save_numReadPages_btn);
+        AlertDialog.Builder alert_builder = new AlertDialog.Builder(getActivity());
+        View view = getLayoutInflater().inflate(R.layout.add_read_pages_layout, null);
+        final EditText readPages = (EditText) view.findViewById(R.id.input_read_pages);
+        Button btnSave = (Button) view.findViewById(R.id.save_numReadPages_btn);
 
         alert_builder.setView(view);
-        final AlertDialog dialog=alert_builder.create();
+        final AlertDialog dialog = alert_builder.create();
         dialog.show();
 
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                int currently_read_pages = dbHandler.getNumberOfReadPages(String.valueOf(selected_bookId));
+                if (readPages.getText().toString().isEmpty()) {
+                    dialog.hide();
+                    return;
+                }
+
+                final int currently_read_pages = dbHandler.getNumberOfReadPages(String.valueOf(selected_bookId));
                 int total_num_of_pages = dbHandler.getNumberOPages(String.valueOf(selected_bookId));
                 int input_readPages = Integer.parseInt(readPages.getText().toString());
-                int new_value = currently_read_pages + input_readPages;
 
-                if (new_value >= total_num_of_pages) {
+                if (input_readPages >= total_num_of_pages) {
+
+                    input_readPages=total_num_of_pages;
 
                     final ContentValues contentValues = new ContentValues();
                     contentValues.put(DBContractClass.BOOK.COLUMN_FOR_READING, "0");
                     contentValues.put(DBContractClass.BOOK.COLUMN_CURRENTLY_READING, "0");
                     contentValues.put(DBContractClass.BOOK.COLUMN_ALREADY_READ, "1");
-                    contentValues.put(DBContractClass.BOOK.COLUMN_NUMBER_OF_READ_PAGES,total_num_of_pages);
+                    contentValues.put(DBContractClass.BOOK.COLUMN_NUMBER_OF_READ_PAGES, total_num_of_pages);
 
                     //in case that user entered bigger number of pages, we are setting up new alert to ask does he rlly want to save it
 
+                    final int finalInput_readPages = input_readPages;
                     new AlertDialog.Builder(getActivity())
                             .setTitle(getString(R.string.book_read))
                             .setMessage(getString(R.string.congrats))
@@ -315,44 +361,44 @@ public class CurrentlyReadingBooksFragment extends Fragment {
 
                                     if (updated) {
                                         //remove alarm
-                                        if(has_alarm_setup){
-                                            MyAlarmManager myAlarmManager=new MyAlarmManager(getContext());
+                                        if (has_alarm_setup) {
+                                            MyAlarmManager myAlarmManager = new MyAlarmManager(getContext());
                                             myAlarmManager.stopAlarmForBook(String.valueOf(selected_bookId));
-                                            Log.e("Alarm","Alarm turned of for book: "+String.valueOf(selected_bookId));
+                                            Log.e("Alarm", "Alarm turned of for book: " + String.valueOf(selected_bookId));
                                         }
 
-                                    //if everything is alright, rate the book
-                                        AlertDialog.Builder alert_builder_rating=new AlertDialog.Builder(getActivity());
-                                        View view= getLayoutInflater().inflate(R.layout.rate_the_book,null);
-                                        RatingBar ratingBar=(RatingBar) view.findViewById(R.id.input_rate);
+                                        //if everything is alright, rate the book
+                                        AlertDialog.Builder alert_builder_rating = new AlertDialog.Builder(getActivity());
+                                        View view = getLayoutInflater().inflate(R.layout.rate_the_book, null);
+                                        RatingBar ratingBar = (RatingBar) view.findViewById(R.id.input_rate);
 
                                         alert_builder_rating.setView(view);
-                                        final AlertDialog dialog1=alert_builder_rating.create();
+                                        final AlertDialog dialog1 = alert_builder_rating.create();
                                         dialog1.show();
 
                                         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
                                             @Override
                                             public void onRatingChanged(RatingBar ratingBar, float v, boolean b) {
 
-                                                final int rating= (int)ratingBar.getRating() ;
+                                                final int rating = (int) ratingBar.getRating();
 
                                                 final ContentValues contentValues_rating = new ContentValues();
-                                                contentValues_rating.put(DBContractClass.BOOK.COLUMN_RATING,rating);
+                                                contentValues_rating.put(DBContractClass.BOOK.COLUMN_RATING, rating);
 
-                                                if(dbHandler.updateBook(contentValues_rating, DBContractClass.BOOK.COLUMN_ID+"=?",new String[]{String.valueOf(selected_bookId)}))
-                                                {
+                                                dbHandler.addreadPages(finalInput_readPages,true);
+
+                                                if (dbHandler.updateBook(contentValues_rating, DBContractClass.BOOK.COLUMN_ID + "=?", new String[]{String.valueOf(selected_bookId)})) {
                                                     dialog1.hide();
                                                     adapter.changeCursor(dbHandler.getCurrentlyReadingBooks(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
 
-                                                    Intent intent=new Intent(getActivity(), BookDetails.class);
-                                                    intent.putExtra("BookID",String.valueOf(selected_bookId));
+                                                    Intent intent = new Intent(getActivity(), BookDetails.class);
+                                                    intent.putExtra("BookID", String.valueOf(selected_bookId));
                                                     startActivity(intent);
                                                 }
 
                                             }
+
                                         });
-
-
 
                                     } else {
                                         Log.e("Book_read", "Book moved to read - FALSE");
@@ -362,33 +408,48 @@ public class CurrentlyReadingBooksFragment extends Fragment {
                             })
                             .setNegativeButton(android.R.string.no, null).show();
                     dialog.hide();
+
+                    dbHandler.evidentateReading(Integer.toString(selected_bookId),input_readPages-currently_read_pages);
+
+
                 } else {
 
                     final ContentValues contentValues = new ContentValues();
-                    contentValues.put(DBContractClass.BOOK.COLUMN_NUMBER_OF_READ_PAGES,new_value);
+                    contentValues.put(DBContractClass.BOOK.COLUMN_NUMBER_OF_READ_PAGES, input_readPages);
                     String whereClause = DBContractClass.BOOK.COLUMN_ID + "=?";
                     String[] args = {String.valueOf(selected_bookId)};
                     //if book is not read totally just update number of read pages.
-                    boolean updated = dbHandler.updateBook(contentValues,whereClause,args);
+                    boolean updated = dbHandler.updateBook(contentValues, whereClause, args);
 
-                    if(updated)
-                    {
+                    dbHandler.evidentateReading(Integer.toString(selected_bookId),input_readPages-currently_read_pages);
+                    dbHandler.addreadPages(input_readPages,false);
+
+
+                    if (updated) {
                         adapter.changeCursor(dbHandler.getCurrentlyReadingBooks(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
-                        Toast.makeText(getActivity().getBaseContext(),"Added read pages",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity().getBaseContext(), "Added read pages", Toast.LENGTH_SHORT).show();
                         dialog.hide();
-                    }
-                    else{
+                    } else {
                         Log.e("Book_read", "Book moved to read - FALSE");
                     }
                 }
+
+
+
             }
         });
-
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         dbHandler.closeDB();
+    }
+
+    @Override
+    public void refresh() {
+        adapter.changeCursor(dbHandler.getCurrentlyReadingBooks(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
+        Log.d("refresh","curr reading");
+
     }
 }

@@ -3,10 +3,12 @@ package com.readingtrackerapp.adapters;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.util.Log;
 
 import com.readingtrackerapp.fragments.BooksForReadingFragment;
 import com.readingtrackerapp.fragments.CurrentlyReadingBooksFragment;
 import com.readingtrackerapp.fragments.ReadBooksFragment;
+import com.readingtrackerapp.helper.IRefreshable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +47,7 @@ public class TabAdapter extends FragmentStatePagerAdapter {
     // needed for refreshing fragments in view pager
     @Override
     public int getItemPosition(Object object) {
-        // POSITION_NONE makes it possible to reload the PagerAdapter
-        return POSITION_NONE;
+        return super.getItemPosition(object);
     }
 
     @Override

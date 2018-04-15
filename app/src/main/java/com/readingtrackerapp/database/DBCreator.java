@@ -36,7 +36,8 @@ public class DBCreator extends SQLiteOpenHelper {
                     USER.COLUMN_NAME + " TEXT NOT NULL,"+
                     USER.COLUMN_SURNAME+" TEXT NOT NULL,"+
                     USER.COLUMN_REGISTRATION_DATE+" TEXT NOT NULL,"+
-                    USER.COLUMN_READ_PAGES_NUMBER+" INTEGER NOT NULL)";
+                    USER.COLUMN_READ_PAGES_NUMBER+" INTEGER NOT NULL,"+
+                    USER.COLUMN_READ_TITLES_NUMBER+" INTEGER NOT NULL)";
 
 
     private static final String CREATE_TABLE_GENRES =
@@ -145,6 +146,8 @@ public class DBCreator extends SQLiteOpenHelper {
             rowContent="";
         }
         cursor.close();
+
+
 
     }
 

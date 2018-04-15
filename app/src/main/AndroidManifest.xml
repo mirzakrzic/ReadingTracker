@@ -23,8 +23,13 @@
 
         <receiver android:name=".alarmManager.MyReceiver" />
 
-        <activity android:name=".activities.RecordReading" />
+        <activity android:name=".activities.RecordReading"/>
+
         <activity android:name=".activities.AddNewBookActivity" />
+
+        <activity android:name=".activities.UserProfile"/>
+
+        <activity android:name=".activities.GoalStatistics"/>
 
         <receiver android:name=".alarmManager.BroadcastReceiverAfterReboot">
             <intent-filter>
