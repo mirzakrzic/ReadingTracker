@@ -8,7 +8,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Insert number of read pages"
+        android:text="Insert last page you read"
         android:paddingTop="10dp"
         android:gravity="center"
         android:textColor="@color/colorBlack"
@@ -21,14 +21,14 @@
         android:id="@+id/input_read_pages"
         android:maxLines="10"
         android:ems="10"
-        android:hint="Number of pages read today"
+        android:hint="Page number"
         android:inputType="number"
         />
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Save"
+        android:text="@string/saveBtn_addReadPages"
         android:id="@+id/save_numReadPages_btn"
         />
 

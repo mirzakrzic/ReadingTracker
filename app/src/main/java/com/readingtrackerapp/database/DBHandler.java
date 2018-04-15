@@ -17,10 +17,6 @@ import com.readingtrackerapp.model.Genre;
 import com.readingtrackerapp.model.User;
 import com.readingtrackerapp.helper.CalendarHelper;
 
-/**
- * Created by Anes on 3/23/2018.
- */
-
 public class DBHandler {
 
     private Context context;
@@ -31,7 +27,6 @@ public class DBHandler {
 
         context=c;
         openDB();
-
 
     }
 
@@ -110,14 +105,6 @@ public class DBHandler {
 
         return c;
 
-       /* List<Genre> genres=new ArrayList<>();
-
-        while (c.moveToNext())
-            genres.add(new Genre(c.getInt(0),c.getString(1)));
-
-        return genres;*/
-
-
     }
 
 
@@ -143,6 +130,45 @@ public class DBHandler {
 
 
     }
+
+
+    public int recordReading(String bookID, int numPages)
+    {
+        //Just insert function when recording reading but this one records values for READING_EVIDENTION TABLE
+
+        ContentValues contentValues=new ContentValues();
+        contentValues.put(DBContractClass.READING_EVIDENTION.COLUMN_BOOK_ID,bookID);
+        contentValues.put(DBContractClass.READING_EVIDENTION.COLUMN_NUMBER_OF_READ_PAGES,numPages);
+        contentValues.put(DBContractClass.READING_EVIDENTION.COLUMN_DAY,CalendarHelper.getDay());
+        contentValues.put(DBContractClass.READING_EVIDENTION.COLUMN_MONTH,CalendarHelper.getMonth());
+        contentValues.put(DBContractClass.READING_EVIDENTION.COLUMN_YEAR,CalendarHelper.getYear());
+        int inserted=0;
+        try {
+            inserted = (int) db.insert(DBContractClass.READING_EVIDENTION.TABLE_NAME, null, contentValues);
+            Log.e("Record_r","READING_EVIDENTION Instanced! "+String.valueOf(numPages)+" pages read");
+
+        }catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return inserted;
+    }
+
+    public int getNumberOfReadPages_EvidentionTable(String Book_id)
+    {
+        Cursor c=db.query(DBContractClass.READING_EVIDENTION.TABLE_NAME,new String[]{DBContractClass.READING_EVIDENTION.COLUMN_ID, DBContractClass.READING_EVIDENTION.COLUMN_NUMBER_OF_READ_PAGES},
+                DBContractClass.READING_EVIDENTION.COLUMN_BOOK_ID+"=?",new String[]{Book_id},null,null,null);
+        int num_read_pages_Totally=0;
+
+        while(c.moveToNext()){
+            num_read_pages_Totally+=c.getInt(1);
+        }
+        Log.e("Num_read_ET",String.valueOf(num_read_pages_Totally));
+
+        return num_read_pages_Totally;
+    }
+
+
 
     public Book getBookById(String id){
 

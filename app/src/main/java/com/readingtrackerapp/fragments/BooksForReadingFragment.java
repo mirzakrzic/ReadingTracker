@@ -108,9 +108,10 @@ public class BooksForReadingFragment extends Fragment {
                 return true;
             case R.id.books_addToReading:
                 addToReading();
-
+                return true;
             case R.id.books_delete:
                 deleteFromList();
+                return true;
             default:
                 return super.onContextItemSelected(item);
         }
@@ -133,6 +134,7 @@ public class BooksForReadingFragment extends Fragment {
                         values.put(BOOK.COLUMN_FOR_READING, 0);
 
                         boolean updated=dbHandler.updateBook(values,whereClause,args);
+                        dbHandler.recordReading(String.valueOf(selected_bookId),0);
 
                         if (updated)
                         {

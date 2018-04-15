@@ -8,4 +8,8 @@
     <string name="delete_book_text">Do you want to delete book from list?</string>
     <string name="book_read">Book read?</string>
     <string name="congrats">Congratulations, you have completed the book. Well donne! In case you didn\'t just cancel this and enter new value.</string>
+    <string name="saveBtn_addReadPages">Save</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

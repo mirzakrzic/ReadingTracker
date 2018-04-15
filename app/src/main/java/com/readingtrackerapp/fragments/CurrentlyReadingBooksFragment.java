@@ -289,11 +289,20 @@ public class CurrentlyReadingBooksFragment extends Fragment {
             public void onClick(View view) {
 
                 int currently_read_pages = dbHandler.getNumberOfReadPages(String.valueOf(selected_bookId));
-                int total_num_of_pages = dbHandler.getNumberOPages(String.valueOf(selected_bookId));
-                int input_readPages = Integer.parseInt(readPages.getText().toString());
-                int new_value = currently_read_pages + input_readPages;
+                final int total_num_of_pages = dbHandler.getNumberOPages(String.valueOf(selected_bookId));
+                String input_readPages_check = readPages.getText().toString();//need to check if user entered anything
+                int input_readPages=0;
 
-                if (new_value >= total_num_of_pages) {
+                final int reading_evidention_read =dbHandler.getNumberOfReadPages_EvidentionTable(String.valueOf(selected_bookId));
+
+                if(input_readPages_check.isEmpty()){ readPages.setError("This field can't be empty!");return; }
+                else{ input_readPages=Integer.parseInt(input_readPages_check); }
+
+                if(input_readPages>total_num_of_pages) { readPages.setError("You can't read more pages than books has!");return; }
+
+                if(input_readPages<currently_read_pages){ readPages.setError("Input value lower than last time recorded");return;}
+
+                if (input_readPages==total_num_of_pages) {
 
                     final ContentValues contentValues = new ContentValues();
                     contentValues.put(DBContractClass.BOOK.COLUMN_FOR_READING, "0");
@@ -312,6 +321,7 @@ public class CurrentlyReadingBooksFragment extends Fragment {
                                     String whereClause = DBContractClass.BOOK.COLUMN_ID + "=?";
                                     String[] args = {String.valueOf(selected_bookId)};
                                     boolean updated = dbHandler.updateBook(contentValues, whereClause, args);
+                                    int inserted = dbHandler.recordReading(String.valueOf(selected_bookId),total_num_of_pages-reading_evidention_read); // if
 
                                     if (updated) {
                                         //remove alarm
@@ -352,12 +362,9 @@ public class CurrentlyReadingBooksFragment extends Fragment {
                                         });
 
                                         adapter.changeCursor(dbHandler.getCurrentlyReadingBooks(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
-
-
                                     } else {
                                         Log.e("Book_read", "Book moved to read - FALSE");
                                     }
-
                                 }
                             })
                             .setNegativeButton(android.R.string.no, null).show();
@@ -365,13 +372,18 @@ public class CurrentlyReadingBooksFragment extends Fragment {
                 } else {
 
                     final ContentValues contentValues = new ContentValues();
-                    contentValues.put(DBContractClass.BOOK.COLUMN_NUMBER_OF_READ_PAGES,new_value);
+                    contentValues.put(DBContractClass.BOOK.COLUMN_NUMBER_OF_READ_PAGES,input_readPages);
                     String whereClause = DBContractClass.BOOK.COLUMN_ID + "=?";
                     String[] args = {String.valueOf(selected_bookId)};
                     //if book is not read totally just update number of read pages.
                     boolean updated = dbHandler.updateBook(contentValues,whereClause,args);
 
-                    if(updated)
+
+                    int reading_evidention_insert=input_readPages-reading_evidention_read; //get difference between current page and read so far
+
+                    int inserted = dbHandler.recordReading(String.valueOf(selected_bookId),reading_evidention_insert);
+
+                    if(updated && inserted!=0)
                     {
                         adapter.changeCursor(dbHandler.getCurrentlyReadingBooks(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
                         Toast.makeText(getActivity().getBaseContext(),"Added read pages",Toast.LENGTH_SHORT).show();

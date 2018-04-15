@@ -1,8 +1,6 @@
 package com.readingtrackerapp.model;
 
-/**
- * Created by Anes on 3/23/2018.
- */
+import android.os.Parcel;
 
 public class Book {
 
