@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -28,6 +29,7 @@ import com.readingtrackerapp.alarmManager.MyAlarmManager;
 import com.readingtrackerapp.database.DBContractClass;
 import com.readingtrackerapp.database.DBHandler;
 import com.readingtrackerapp.helper.CalendarHelper;
+import com.readingtrackerapp.helper.IRefreshable;
 import com.readingtrackerapp.model.User;
 
 import java.util.Calendar;
@@ -66,19 +68,12 @@ public class MainActivity extends AppCompatActivity {
         InitializeNavDrawer();
     }
 
-
-    private void setAlarms() {
-
-        MyAlarmManager myAlarmManager=new MyAlarmManager(getApplicationContext());
-
-
-        Cursor c = dbHandler.getCurrentlyReadingBooks(true, DBContractClass.BOOK.COLUMN_TITLE, "");
-        while (c.moveToNext())
-            myAlarmManager.setAlarmForBook(c.getString(c.getColumnIndex(DBContractClass.BOOK.COLUMN_ID)), c.getString(c.getColumnIndex(DBContractClass.BOOK.COLUMN_NOTIFICATION_TIME)));
-
-        myAlarmManager.setAlarmForNextMonthlyGoal();
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setViewPager();
     }
+
 
     private void InitializeNavDrawer()
     {
@@ -97,6 +92,22 @@ public class MainActivity extends AppCompatActivity {
         toggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch(item.getItemId()){
+
+                    case R.id.nav_user:
+                        startActivity(new Intent(getApplicationContext(),UserProfile.class));
+                        return true;
+                    case R.id.nav_user_stats:
+                        startActivity(new Intent(getApplicationContext(),GoalStatistics.class));
+                        return true;
+                }
+                return false;
+            }
+        });
+
     }
 
     @Override
@@ -105,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
         {
             return true;
         }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -114,16 +126,17 @@ public class MainActivity extends AppCompatActivity {
 
         if (dbHandler.isUserRegistered()) {
 
-            User user = dbHandler.getUser();
+            Cursor user = dbHandler.getUser();
 
-            Snackbar.make(findViewById(R.id.content), "Wellcome back " + user.getName().toUpperCase() + " " + user.getSurname().toUpperCase(), Snackbar.LENGTH_SHORT)
+            user.moveToNext();
+            Snackbar.make(findViewById(R.id.content), "Wellcome back " + user.getString(user.getColumnIndex(DBContractClass.USER.COLUMN_NAME)).toUpperCase() + " " + user.getString(user.getColumnIndex(DBContractClass.USER.COLUMN_NAME)).toUpperCase(), Snackbar.LENGTH_SHORT)
                     .setActionTextColor(getResources().getColor(android.R.color.holo_red_light))
                     .show();
-            username_text=user.getName().toUpperCase() + " " + user.getSurname().toUpperCase();
+            username_text=user.getString(user.getColumnIndex(DBContractClass.USER.COLUMN_NAME)).toUpperCase() + " " + user.getString(user.getColumnIndex(DBContractClass.USER.COLUMN_NAME)).toUpperCase();
 
-        } else
+        } else {
             startActivity(new Intent(MainActivity.this, RegisterUser.class));
-
+        }
     }
 
     // setting view pager
@@ -132,13 +145,35 @@ public class MainActivity extends AppCompatActivity {
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
 
         // setting view pager with fragments and titles to show on tabs
-        TabAdapter adapter = new TabAdapter(getSupportFragmentManager());
+        final TabAdapter adapter = new TabAdapter(getSupportFragmentManager());
 
 
         viewPager.setAdapter(adapter);
         tabLayout.setupWithViewPager(viewPager);
 
+        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                                              @Override
+                                              public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+                                              }
+
+                                              @Override
+                                          public void onPageSelected(int position) {
+                                                  IRefreshable f = (IRefreshable ) adapter.getItem(position);;
+                                                  if (f != null) {
+                                                      f.refresh();
+                                                  }
+                                                  Log.d("refresh","* refreshed");
+                                          }
+
+                                              @Override
+                                              public void onPageScrollStateChanged(int state) {
+
+                                              }
+                                          });
+
         dbHandler.getCountOfRecords();
+
 
     }
 

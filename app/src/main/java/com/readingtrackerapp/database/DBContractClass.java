@@ -19,6 +19,7 @@ public class DBContractClass {
         public static final String COLUMN_SURNAME="surname";
         public static final String COLUMN_REGISTRATION_DATE="registrationDate";
         public static final String COLUMN_READ_PAGES_NUMBER="readPagesNumber";
+        public static final String COLUMN_READ_TITLES_NUMBER="readTitlesNumber";
     }
 
     // MONTHLY GOAL

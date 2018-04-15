@@ -106,4 +106,8 @@ public class BookDetails extends AppCompatActivity {
         listView.setAdapter(adapter);
     }
 
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(getApplicationContext(),MainActivity.class));
+    }
 }
