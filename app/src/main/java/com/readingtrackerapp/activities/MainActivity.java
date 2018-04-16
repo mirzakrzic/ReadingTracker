@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
         //initialize nav drawer and put username in header
         InitializeNavDrawer();
+
     }
 
     private void isMonhlyGoalSet() {
