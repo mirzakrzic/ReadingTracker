@@ -118,6 +118,7 @@ public class CurrentlyReadingBooksFragment extends Fragment implements IRefresha
                 Intent intent = new Intent(getActivity(), BookDetails.class);
                 intent.putExtra("BookID", String.valueOf(selected_bookId));
                 startActivity(intent);
+                getActivity().finish();
                 return true;
             case R.id.books_readingTrack:
                 addReadPages();

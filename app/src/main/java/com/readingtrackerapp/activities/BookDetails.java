@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.readingtrackerapp.R;
 import com.readingtrackerapp.adapters.CommentsListAdapter;
+import com.readingtrackerapp.database.DBContractClass;
 import com.readingtrackerapp.database.DBHandler;
 import com.readingtrackerapp.model.Book;
 import com.readingtrackerapp.model.Genre;
@@ -106,4 +107,10 @@ public class BookDetails extends AppCompatActivity {
         listView.setAdapter(adapter);
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(BookDetails.this,MainActivity.class));
+        finish();
+    }
 }

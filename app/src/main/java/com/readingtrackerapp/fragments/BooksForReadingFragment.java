@@ -112,6 +112,7 @@ public class BooksForReadingFragment extends Fragment implements IRefreshable {
                 Intent intent = new Intent(getActivity(), BookDetails.class);
                 intent.putExtra("BookID", String.valueOf(selected_bookId));
                 startActivity(intent);
+                getActivity().finish();
                 return true;
             case R.id.books_addToReading:
                 addToReading();
