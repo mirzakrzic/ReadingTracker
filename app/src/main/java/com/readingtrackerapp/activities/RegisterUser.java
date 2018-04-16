@@ -49,13 +49,14 @@ public class RegisterUser extends AppCompatActivity {
 
 
         // register user in database
-        boolean register=dbHandler.registerUser(nameEditText.getText().toString(),surnameEditText.getText().toString(), CalendarHelper.getCurrentlyDateInString());
+        dbHandler.registerUser(nameEditText.getText().toString(),surnameEditText.getText().toString(), CalendarHelper.getCurrentlyDateInString());
 
+        if(dbHandler.isMonthlyGoalSetForThisMonth()) return;
 
-        // close activity
         Intent intent=new Intent(RegisterUser.this,RecordReading.class);
         intent.putExtra("goal","goal");
         startActivity(intent);
+
         finish();
 
     }
@@ -84,6 +85,8 @@ public class RegisterUser extends AppCompatActivity {
         return valid;
 
     }
+
+
 
     @Override
     protected void onDestroy() {

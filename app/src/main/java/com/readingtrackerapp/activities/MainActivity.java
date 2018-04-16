@@ -54,9 +54,10 @@ public class MainActivity extends AppCompatActivity {
 
         dbHandler = new DBHandler(getApplicationContext());
 
-        // checks if user is registered
-        isUserRegistered();
 
+        // checks if user is registered
+        if(isUserRegistered())
+            isMonhlyGoalSet();
 
         // set toolbar and options menu for sorting books
         setToolbar();
@@ -66,6 +67,16 @@ public class MainActivity extends AppCompatActivity {
 
         //initialize nav drawer and put username in header
         InitializeNavDrawer();
+    }
+
+    private void isMonhlyGoalSet() {
+
+        if(dbHandler.isMonthlyGoalSetForThisMonth()) return;
+
+        Intent intent=new Intent(MainActivity.this,RecordReading.class);
+        intent.putExtra("goal","goal");
+        startActivity(intent);
+
     }
 
     @Override
@@ -122,20 +133,23 @@ public class MainActivity extends AppCompatActivity {
 
 
     // user registration
-    private void isUserRegistered() {
+    private boolean isUserRegistered() {
 
         if (dbHandler.isUserRegistered()) {
 
             Cursor user = dbHandler.getUser();
 
             user.moveToNext();
-            Snackbar.make(findViewById(R.id.content), "Wellcome back " + user.getString(user.getColumnIndex(DBContractClass.USER.COLUMN_NAME)).toUpperCase() + " " + user.getString(user.getColumnIndex(DBContractClass.USER.COLUMN_NAME)).toUpperCase(), Snackbar.LENGTH_SHORT)
+            Snackbar.make(findViewById(R.id.content), "Wellcome back " + user.getString(user.getColumnIndex(DBContractClass.USER.COLUMN_NAME)).toUpperCase() + " " + user.getString(user.getColumnIndex(DBContractClass.USER.COLUMN_SURNAME)).toUpperCase(), Snackbar.LENGTH_SHORT)
                     .setActionTextColor(getResources().getColor(android.R.color.holo_red_light))
                     .show();
             username_text=user.getString(user.getColumnIndex(DBContractClass.USER.COLUMN_NAME)).toUpperCase() + " " + user.getString(user.getColumnIndex(DBContractClass.USER.COLUMN_NAME)).toUpperCase();
 
+            return true;
+
         } else {
             startActivity(new Intent(MainActivity.this, RegisterUser.class));
+            return false;
         }
     }
 
@@ -163,7 +177,6 @@ public class MainActivity extends AppCompatActivity {
                                                   if (f != null) {
                                                       f.refresh();
                                                   }
-                                                  Log.d("refresh","* refreshed");
                                           }
 
                                               @Override
@@ -172,7 +185,6 @@ public class MainActivity extends AppCompatActivity {
                                               }
                                           });
 
-        dbHandler.getCountOfRecords();
 
 
     }

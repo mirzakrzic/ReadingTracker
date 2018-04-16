@@ -81,7 +81,7 @@ public class MyReceiver extends BroadcastReceiver {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(context)
                         .setSmallIcon(R.mipmap.ic_launcher)
-                        .setContentTitle("NEW MONTHLY GOAL!!!")
+                        .setContentTitle("ReadingTracker*** NEW MONTHLY GOAL!!!")
                         .setContentText("click to set new monthly goal")
                         .setContentIntent(pendingIntent)
                         .setAutoCancel(true);
@@ -117,7 +117,7 @@ public class MyReceiver extends BroadcastReceiver {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "100");
         builder.setContentIntent(resultPendingIntent)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle(book.getTitle())
+                .setContentTitle("ReadingTracker*** "+book.getTitle())
                 .setContentText("click to record reading for today")
                 .setAutoCancel(true);
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);

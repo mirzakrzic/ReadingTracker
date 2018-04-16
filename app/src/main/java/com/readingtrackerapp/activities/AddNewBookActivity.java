@@ -213,6 +213,7 @@ public class AddNewBookActivity extends AppCompatActivity {
 
     }
 
+
     @Override
     protected void onDestroy() {
         super.onDestroy();

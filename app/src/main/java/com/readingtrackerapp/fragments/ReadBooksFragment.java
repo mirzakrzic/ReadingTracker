@@ -171,6 +171,12 @@ public class ReadBooksFragment extends Fragment implements IRefreshable {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        refresh();
+    }
+
+    @Override
     public void refresh() {
         adapter.changeCursor(dbHandler.getReadBooks(ASCENDING_ORDER, SORTING_COLUMN,SEARCH_TEXT));
         Log.d("refresh"," read books");
