@@ -111,7 +111,6 @@ public class DBHandler {
 
     Cursor cursor=db.rawQuery(query,null);
 
-    Log.d("goal", cursor.getCount()+" cursor count");
 
     return cursor;
 
@@ -446,8 +445,6 @@ public class DBHandler {
     public boolean isBookReadForToday(String bookID, String year, String month, String day) {
 
         Cursor cursor=db.query(READING_EVIDENTION.TABLE_NAME,new String []{READING_EVIDENTION._ID},READING_EVIDENTION.COLUMN_BOOK_ID+"=? AND "+READING_EVIDENTION.COLUMN_YEAR+"=? AND "+READING_EVIDENTION.COLUMN_MONTH+"=? AND "+READING_EVIDENTION.COLUMN_DAY+"=?",new String[]{bookID,year,month,day},null,null,null);
-        Log.d("citanje","*** select readingEvidentions._id from readingEvidentions where readingEvidentions.bookId = ? AND readingEvidentions.year = ? AND readingEvidentions.month = ? AND readingEvidentions.day = ?");
-        Log.d("citanje",cursor.getCount()+" cursor count");
 
         if (cursor.getCount() ==0){
             //cursor is empty
@@ -460,6 +457,13 @@ public class DBHandler {
         }
     }
 
+    public boolean isMonthlyGoalSetForThisMonth() {
+
+    Cursor c=db.query(MONTHLY_GOAL.TABLE_NAME,new String[]{MONTHLY_GOAL.COLUMN_ID},MONTHLY_GOAL.COLUMN_YEAR+"=? AND "+MONTHLY_GOAL.COLUMN_MONTH+"=?",new String[]{Integer.toString(Calendar.getInstance().get(Calendar.YEAR)),Integer.toString(Calendar.getInstance().get(Calendar.MONTH))},null,null,null);
+
+    return c.getCount()>0;
+
+    }
 }
 
 

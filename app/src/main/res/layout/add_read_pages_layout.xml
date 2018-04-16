@@ -8,22 +8,19 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Insert number of read pages"
-        android:paddingTop="10dp"
         android:gravity="center"
-        android:textColor="@color/colorBlack"
+        android:paddingTop="10dp"
+        android:text="Insert last read page number"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Small"
-        />
+        android:textColor="@color/colorBlack" />
 
     <EditText
+        android:id="@+id/input_read_pages"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/input_read_pages"
-        android:maxLines="10"
         android:ems="10"
-        android:hint="Number of pages read today"
         android:inputType="number"
-        />
+        android:maxLines="10" />
 
     <Button
         android:layout_width="match_parent"

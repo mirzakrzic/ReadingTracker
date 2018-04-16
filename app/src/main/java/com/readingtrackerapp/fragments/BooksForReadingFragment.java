@@ -90,7 +90,6 @@ public class BooksForReadingFragment extends Fragment implements IRefreshable {
                 Cursor c = (Cursor) adapterView.getItemAtPosition(position);
                 selected_bookId = c.getInt(c.getColumnIndex(BOOK.COLUMN_ID));
                 listView.showContextMenu();
-                Toast.makeText(getActivity().getBaseContext(), "SELECTED BOOK_ID" + String.valueOf(selected_bookId), Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
@@ -135,36 +134,58 @@ public class BooksForReadingFragment extends Fragment implements IRefreshable {
 
                             public void onClick(DialogInterface dialog, int whichButton) {
 
-                        final String whereClause = BOOK.COLUMN_ID + "=?";
-                        final String[] args = {String.valueOf(selected_bookId)};
+                                final String whereClause = BOOK.COLUMN_ID + "=?";
+                                final String[] args = {String.valueOf(selected_bookId)};
 
 
-                        final ContentValues values = new ContentValues();
-                        values.put(BOOK.COLUMN_CURRENTLY_READING, 1);
-                        values.put(BOOK.COLUMN_FOR_READING, 0);
+                                final ContentValues values = new ContentValues();
+                                values.put(BOOK.COLUMN_CURRENTLY_READING, 1);
+                                values.put(BOOK.COLUMN_FOR_READING, 0);
 
-                        new AlertDialog.Builder(getActivity())
-                                .setTitle("Notifications?")
-                                .setMessage("Do you want to get reminders for reading for this book?")
-                                .setIcon(android.R.drawable.ic_dialog_alert)
-                                .setPositiveButton(
-                                        android.R.string.yes, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                new AlertDialog.Builder(getActivity())
+                                        .setTitle("Notifications?")
+                                        .setMessage("Do you want to get reminders for reading for this book?")
+                                        .setIcon(android.R.drawable.ic_dialog_alert)
+                                        .setPositiveButton(
+                                                android.R.string.yes, new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int whichButton) {
 
-                                        final Calendar calendar = Calendar.getInstance();
+                                                        final Calendar calendar = Calendar.getInstance();
 
-                                        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-                                        int minute = calendar.get(Calendar.MINUTE);
+                                                        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                                                        int minute = calendar.get(Calendar.MINUTE);
 
-                                        TimePickerDialog mTimePicker;
-                                        mTimePicker = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
+                                                        TimePickerDialog mTimePicker;
+                                                        mTimePicker = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
+                                                            @Override
+                                                            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                                                                calendar.set(Calendar.HOUR_OF_DAY, selectedHour);
+                                                                calendar.set(Calendar.MINUTE, selectedMinute);
+                                                                values.put(BOOK.COLUMN_NOTIFICATION_TIME, CalendarHelper.getDateInString(calendar));
+                                                                MyAlarmManager alarmManager = new MyAlarmManager(getContext());
+                                                                alarmManager.setAlarmForBook(Integer.toString(selected_bookId), CalendarHelper.getDateInString(calendar));
+                                                                boolean updated = dbHandler.updateBook(values, whereClause, args);
+
+                                                                if (updated) {
+                                                                    Log.e("Updated books ", String.valueOf(updated));
+                                                                    adapter.changeCursor(dbHandler.getBookForReading(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
+
+                                                                } else {
+                                                                    Log.e("Updated books ", "Book update failed");
+                                                                }
+
+                                                            }
+
+                                                        }, hour, minute, true);//Yes 24 hour time
+                                                        mTimePicker.setTitle("Select time for getting notifications");
+                                                        mTimePicker.show();
+
+
+                                                    }
+                                                })
+                                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
                                             @Override
-                                            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                                                calendar.set(Calendar.HOUR_OF_DAY, selectedHour);
-                                                calendar.set(Calendar.MINUTE, selectedMinute);
-                                                values.put(BOOK.COLUMN_NOTIFICATION_TIME, CalendarHelper.getDateInString(calendar));
-                                                MyAlarmManager alarmManager = new MyAlarmManager(getContext());
-                                                alarmManager.setAlarmForBook(Integer.toString(selected_bookId), CalendarHelper.getDateInString(calendar));
+                                            public void onClick(DialogInterface dialogInterface, int i) {
                                                 boolean updated = dbHandler.updateBook(values, whereClause, args);
 
                                                 if (updated) {
@@ -174,151 +195,135 @@ public class BooksForReadingFragment extends Fragment implements IRefreshable {
                                                 } else {
                                                     Log.e("Updated books ", "Book update failed");
                                                 }
-
                                             }
-
-                                        }, hour, minute, true);//Yes 24 hour time
-                                        mTimePicker.setTitle("Select time for getting notifications");
-                                        mTimePicker.show();
-
-
-                                    }
-                                })
-                                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        boolean updated = dbHandler.updateBook(values, whereClause, args);
-
-                                        if (updated) {
-                                            Log.e("Updated books ", String.valueOf(updated));
-                                            adapter.changeCursor(dbHandler.getBookForReading(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
-
-                                        } else {
-                                            Log.e("Updated books ", "Book update failed");
-                                        }
-                                    }
-                                }).show();}}).setNegativeButton(android.R.string.no,null).show();}
+                                        }).show();
+                            }
+                        }).setNegativeButton(android.R.string.no, null).show();
+    }
 
 
+    public void deleteFromList() {
+        new AlertDialog.Builder(getActivity())
+                .setTitle(getString(R.string.delete_book))
+                .setMessage(getString(R.string.delete_book_text))
+                .setIcon(android.R.drawable.ic_delete)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int whichButton) {
+
+                        String whereClause = BOOK.COLUMN_ID + "=?";
+                        String[] args = {String.valueOf(selected_bookId)};
 
 
+                        boolean deleted = dbHandler.deleteBook(whereClause, args);
 
-                    public void deleteFromList() {
-                        new AlertDialog.Builder(getActivity())
-                                .setTitle(getString(R.string.delete_book))
-                                .setMessage(getString(R.string.delete_book_text))
-                                .setIcon(android.R.drawable.ic_delete)
-                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-
-                                        String whereClause = BOOK.COLUMN_ID + "=?";
-                                        String[] args = {String.valueOf(selected_bookId)};
-
-
-                                        boolean deleted = dbHandler.deleteBook(whereClause, args);
-
-                                        if (deleted) {
-                                            adapter.changeCursor(dbHandler.getBookForReading(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
-                                        } else {
-                                            Log.e("Delete books ", "Book delete failed");
-                                        }
-
-                                    }
-                                })
-                                .setNegativeButton(android.R.string.no, null).show();
-                    }
-
-
-                    @Override
-                    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-                        super.onCreateOptionsMenu(menu, inflater);
-
-                        // get sorting menu
-                        sortingMenu = menu;
-
-                        // set menu sort by rating and by read pages unvisible for this fragment
-                        sortingMenu.findItem(R.id.sortByRating).setVisible(false);
-                        sortingMenu.findItem(R.id.sortByReadPages).setVisible(false);
-
-                        // setting search action bar
-                        SearchView searchView = (SearchView) MenuItemCompat.getActionView(sortingMenu.findItem(R.id.search));
-                        if (searchView != null) {
-
-                            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-                                @Override
-                                public boolean onQueryTextSubmit(String query) {
-                                    return false;
-                                }
-
-                                @Override
-                                public boolean onQueryTextChange(String newText) {
-
-                                    // on text change in search bar, requery db with that text and change cursor
-                                    SEARCH_TEXT = newText;
-                                    adapter.changeCursor(dbHandler.getBookForReading(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
-
-                                    return false;
-                                }
-                            });
+                        if (deleted) {
+                            adapter.changeCursor(dbHandler.getBookForReading(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
+                        } else {
+                            Log.e("Delete books ", "Book delete failed");
                         }
 
-                        searchView.setQueryHint("book title");
                     }
+                })
+                .setNegativeButton(android.R.string.no, null).show();
+    }
 
-                    @Override
-                    public boolean onOptionsItemSelected(MenuItem item) {
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
 
-                        switch (item.getItemId()) {
+        // get sorting menu
+        sortingMenu = menu;
 
-                            case R.id.sortByAuthor: {
-                                SORTING_COLUMN = BOOK.COLUMN_AUTHOR_NAME;
-                                sortByTextForSnackBar = "author name";
-                            }
-                            break;
-                            case R.id.sortByGenre: {
-                                SORTING_COLUMN = GENRE.COLUMN_NAME;
-                                sortByTextForSnackBar = "genre";
-                            }
-                            break;
-                            case R.id.sortByPagesNumber: {
-                                SORTING_COLUMN = BOOK.COLUMN_NUMBER_OF_PAGES;
-                                sortByTextForSnackBar = "number of pages";
-                            }
-                            break;
-                            case R.id.sortByTitle: {
-                                SORTING_COLUMN = BOOK.COLUMN_TITLE;
-                                sortByTextForSnackBar = "title";
-                            }
-                            break;
-                            case R.id.order:
-                                ASCENDING_ORDER = !ASCENDING_ORDER;
-                                break;
+        // set menu sort by rating and by read pages unvisible for this fragment
+        sortingMenu.findItem(R.id.sortByRating).setVisible(false);
+        sortingMenu.findItem(R.id.sortByReadPages).setVisible(false);
 
-                            default:
-                                return true;
+        // setting search action bar
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(sortingMenu.findItem(R.id.search));
+        if (searchView != null) {
 
-                        }
-
-                        // retrieving new db cursor to sort data
-                        adapter.changeCursor(dbHandler.getBookForReading(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
-
-                        Snackbar.make(getActivity().findViewById(R.id.content), "Sorted by " + sortByTextForSnackBar + (ASCENDING_ORDER ? " ascending" : " descending"), Snackbar.LENGTH_SHORT).show();
-
-                        return true;
-
-                    }
-
-                    @Override
-                    public void onDestroy() {
-                        super.onDestroy();
-                        dbHandler.closeDB();
-                    }
-
-                    @Override
-                    public void refresh() {
-                        adapter.changeCursor(dbHandler.getBookForReading(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
-                        Log.d("refresh", "for reading");
-                    }
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    return false;
                 }
+
+                @Override
+                public boolean onQueryTextChange(String newText) {
+
+                    // on text change in search bar, requery db with that text and change cursor
+                    SEARCH_TEXT = newText;
+                    adapter.changeCursor(dbHandler.getBookForReading(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
+
+                    return false;
+                }
+            });
+        }
+
+        searchView.setQueryHint("book title");
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+
+        switch (item.getItemId()) {
+
+            case R.id.sortByAuthor: {
+                SORTING_COLUMN = BOOK.COLUMN_AUTHOR_NAME;
+                sortByTextForSnackBar = "author name";
+            }
+            break;
+            case R.id.sortByGenre: {
+                SORTING_COLUMN = GENRE.COLUMN_NAME;
+                sortByTextForSnackBar = "genre";
+            }
+            break;
+            case R.id.sortByPagesNumber: {
+                SORTING_COLUMN = BOOK.COLUMN_NUMBER_OF_PAGES;
+                sortByTextForSnackBar = "number of pages";
+            }
+            break;
+            case R.id.sortByTitle: {
+                SORTING_COLUMN = BOOK.COLUMN_TITLE;
+                sortByTextForSnackBar = "title";
+            }
+            break;
+            case R.id.order:
+                ASCENDING_ORDER = !ASCENDING_ORDER;
+                break;
+
+            default:
+                return true;
+
+        }
+
+        // retrieving new db cursor to sort data
+        adapter.changeCursor(dbHandler.getBookForReading(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
+
+        Snackbar.make(getActivity().findViewById(R.id.content), "Sorted by " + sortByTextForSnackBar + (ASCENDING_ORDER ? " ascending" : " descending"), Snackbar.LENGTH_SHORT).show();
+
+        return true;
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        dbHandler.closeDB();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        refresh();
+    }
+
+    @Override
+    public void refresh() {
+        adapter.changeCursor(dbHandler.getBookForReading(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
+        Log.d("refresh", "for reading");
+    }
+}
 

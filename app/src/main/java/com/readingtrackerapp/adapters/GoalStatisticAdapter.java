@@ -31,7 +31,10 @@ public class GoalStatisticAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
 
-        ((TextView)view.findViewById(R.id.month)).setText(cursor.getString(cursor.getColumnIndex(DBContractClass.MONTHLY_GOAL.COLUMN_MONTH))+"/"+cursor.getString(cursor.getColumnIndex(DBContractClass.MONTHLY_GOAL.COLUMN_YEAR)));
+
+        int month=Integer.parseInt(cursor.getString(cursor.getColumnIndex(DBContractClass.MONTHLY_GOAL.COLUMN_MONTH)));
+        month++;
+        ((TextView)view.findViewById(R.id.month)).setText(month+"/"+cursor.getString(cursor.getColumnIndex(DBContractClass.MONTHLY_GOAL.COLUMN_YEAR)));
         ((TextView)view.findViewById(R.id.goal)).setText("GOAL: "+cursor.getInt(cursor.getColumnIndex(DBContractClass.MONTHLY_GOAL.COLUMN_NUMBER_OF_PAGES))+" pages");
         ((TextView)view.findViewById(R.id.achieved)).setText("ACHIEVED: "+cursor.getInt(cursor.getColumnIndex("sum"))+" pages");
 
