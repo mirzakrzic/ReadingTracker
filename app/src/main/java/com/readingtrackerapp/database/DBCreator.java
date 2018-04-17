@@ -99,7 +99,33 @@ public class DBCreator extends SQLiteOpenHelper {
 
 
         String[] genres=new String[]{
-                "Fiction","Novel","Science Fiction","Poetry","Romance Novel","Horror fiction"
+                "Science fiction", "Satire","Drama","Action and Adventure", "Romance",
+                "Mystery",
+                "Horror",
+                "Self help",
+                "Health",
+                "Guide",
+                "Travel",
+                "Children\'s",
+                "Religion, Spirituality & New Age",
+                "Science",
+                "History",
+                "Math",
+                "Anthology",
+                "Poetry",
+                "Encyclopedias",
+                "Dictionaries",
+                "Comics",
+                "Art",
+                "Cookbooks",
+                "Diaries",
+                "Journals",
+                "Prayer books",
+                "Series",
+                "Trilogy",
+                "Biographies",
+                "Autobiographies",
+                "Fantasy"
         };
 
         for (int i=0;i<genres.length;i++) {

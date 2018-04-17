@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Layout;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
@@ -28,6 +29,7 @@ import com.readingtrackerapp.database.DBContractClass;
 import com.readingtrackerapp.database.DBHandler;
 import com.readingtrackerapp.database.DBContractClass.*;
 import com.readingtrackerapp.helper.CalendarHelper;
+import com.readingtrackerapp.model.Book;
 
 import java.util.Calendar;
 
@@ -45,6 +47,7 @@ public class AddNewBookActivity extends AppCompatActivity {
     Calendar calendar;
     int genreId;
     MyAlarmManager alarmManager;
+    Book book;
 
     // thread fot waiting until snackbar is active
     Thread thread = new Thread(){
@@ -55,6 +58,7 @@ public class AddNewBookActivity extends AppCompatActivity {
                 Intent returnIntent = new Intent();
                 setResult(Activity.RESULT_CANCELED, returnIntent);
                 AddNewBookActivity.this.finish();
+               
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -72,10 +76,29 @@ public class AddNewBookActivity extends AppCompatActivity {
         // alarm manager instance
         alarmManager=new MyAlarmManager(getApplicationContext());
 
+
+        try{
+            book=getIntent().getParcelableExtra("book");
+        }catch (Exception e)
+        {
+            Log.e("Recv_book","Book !recvd");
+            e.printStackTrace();
+        }
+
+
         // setting all views to starting point
         setViews();
         setCheckbox();
         setSpinner();
+        try{
+            Log.e("Recv_book","Book recvd");
+            setEditTexts(book);
+        }catch (Exception e)
+        {
+            Log.e("Recv_book","Book !recvd");
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -213,6 +236,17 @@ public class AddNewBookActivity extends AppCompatActivity {
 
     }
 
+    public void setEditTexts(Book book)
+    {
+
+            title.setText(book.title);
+            title.setEnabled(false);
+            author.setText(book.authorName);
+            author.setEnabled(false);
+            numberOfPages.setText(String.valueOf(book.numberOfPages));
+            numberOfPages.setEnabled(false);
+
+    }
 
     @Override
     protected void onDestroy() {

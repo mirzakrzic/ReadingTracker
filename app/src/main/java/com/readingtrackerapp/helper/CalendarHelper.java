@@ -48,5 +48,21 @@ public class CalendarHelper {
     }
 
 
+    public static String getDay()
+    {
+        Calendar now=Calendar.getInstance();
+        return String.valueOf(now.get(Calendar.DAY_OF_MONTH));
+    }
 
+    public static String getMonth()
+    {
+        Calendar now=Calendar.getInstance();
+        return String.valueOf(now.get(Calendar.MONTH));
+    }
+
+    public static String getYear()
+    {
+        Calendar now=Calendar.getInstance();
+        return String.valueOf(now.get(Calendar.YEAR));
+    }
 }

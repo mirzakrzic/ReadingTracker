@@ -3,6 +3,8 @@
     package="com.readingtrackerapp"
     android:installLocation="preferExternal">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
@@ -41,7 +43,8 @@
 
         <service android:name=".alarmManager.AfterRebootService" />
 
-        <activity android:name=".activities.BookDetails"></activity>
+        <activity android:name=".activities.BookDetails" />
+        <activity android:name=".activities.BookDetailsOnline"></activity>
     </application>
 
 </manifest>
