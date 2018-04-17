@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.readingtrackerapp.Apis.ApiUtil;
 import com.readingtrackerapp.R;
 import com.readingtrackerapp.adapters.BooksAdapter;
+import com.readingtrackerapp.helper.IRefreshable;
 import com.readingtrackerapp.model.Book;
 
 import org.w3c.dom.Text;
@@ -36,7 +37,7 @@ import java.util.ArrayList;
 import static android.view.View.VISIBLE;
 
 
-public class Search_online extends Fragment implements SearchView.OnQueryTextListener {
+public class Search_online extends Fragment implements SearchView.OnQueryTextListener,IRefreshable{
 
 
     public Search_online() {
@@ -180,6 +181,11 @@ public class Search_online extends Fragment implements SearchView.OnQueryTextLis
     @Override
     public boolean onQueryTextChange(String newText) {
         return false;
+    }
+
+    @Override
+    public void refresh() {
+
     }
 
 

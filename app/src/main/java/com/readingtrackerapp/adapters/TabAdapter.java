@@ -8,6 +8,7 @@ import android.util.Log;
 import com.readingtrackerapp.fragments.BooksForReadingFragment;
 import com.readingtrackerapp.fragments.CurrentlyReadingBooksFragment;
 import com.readingtrackerapp.fragments.ReadBooksFragment;
+import com.readingtrackerapp.fragments.Search_online;
 import com.readingtrackerapp.helper.IRefreshable;
 
 import java.util.ArrayList;
@@ -30,12 +31,14 @@ public class TabAdapter extends FragmentStatePagerAdapter {
         fragments.add(new CurrentlyReadingBooksFragment());
         fragments.add(new ReadBooksFragment());
         fragments.add(new BooksForReadingFragment());
+        fragments.add(new Search_online());
 
         // setting titles
         titles=new ArrayList<>();
         titles.add("reading books");
         titles.add("read books");
         titles.add("books for reading");
+        titles.add("search online");
 
     }
 
