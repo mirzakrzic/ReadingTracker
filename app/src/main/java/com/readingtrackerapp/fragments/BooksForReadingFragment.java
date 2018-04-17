@@ -1,5 +1,7 @@
 package com.readingtrackerapp.fragments;
 
+import android.app.AlarmManager;
+import android.app.TimePickerDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -26,19 +28,26 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.readingtrackerapp.R;
+import com.readingtrackerapp.activities.AddNewBookActivity;
 import com.readingtrackerapp.activities.BookDetails;
 import com.readingtrackerapp.adapters.BooksForReadingListAdapter;
+import com.readingtrackerapp.alarmManager.MyAlarmManager;
 import com.readingtrackerapp.database.DBHandler;
 import com.readingtrackerapp.database.DBContractClass.*;
+import com.readingtrackerapp.helper.CalendarHelper;
+import com.readingtrackerapp.helper.IRefreshable;
 import com.readingtrackerapp.model.Book;
 
 import org.w3c.dom.Text;
 
+import java.util.Calendar;
 
-public class BooksForReadingFragment extends Fragment {
+
+public class BooksForReadingFragment extends Fragment implements IRefreshable {
 
     ListView listView;
     DBHandler dbHandler;
@@ -71,7 +80,7 @@ public class BooksForReadingFragment extends Fragment {
         // setting list view
         listView = view.findViewById(R.id.listView);
         adapter = new BooksForReadingListAdapter(getActivity().getApplicationContext(), dbHandler.getBookForReading(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT), CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
-        Log.e("Count_of_rows",String.valueOf(adapter.getCount()));
+        Log.e("Count_of_rows", String.valueOf(adapter.getCount()));
         listView.setAdapter(adapter);
         registerForContextMenu(listView);//Adding context menu, need to inflate with onCreateContextMenu
 
@@ -79,9 +88,8 @@ public class BooksForReadingFragment extends Fragment {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
                 Cursor c = (Cursor) adapterView.getItemAtPosition(position);
-                selected_bookId=c.getInt(c.getColumnIndex(BOOK.COLUMN_ID));
+                selected_bookId = c.getInt(c.getColumnIndex(BOOK.COLUMN_ID));
                 listView.showContextMenu();
-                Toast.makeText(getActivity().getBaseContext(),"SELECTED BOOK_ID"+String.valueOf(selected_bookId),Toast.LENGTH_SHORT).show();
                 return true;
             }
         });
@@ -92,8 +100,8 @@ public class BooksForReadingFragment extends Fragment {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-        MenuInflater inflater=getActivity().getMenuInflater();
-        inflater.inflate(R.menu.context_menu_books_for_reading,menu);
+        MenuInflater inflater = getActivity().getMenuInflater();
+        inflater.inflate(R.menu.context_menu_books_for_reading, menu);
     }
 
     @Override
@@ -101,10 +109,10 @@ public class BooksForReadingFragment extends Fragment {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case R.id.books_details:
-                Intent intent=new Intent(getActivity(), BookDetails.class);
-                intent.putExtra("BookID",String.valueOf(selected_bookId));
+                Intent intent = new Intent(getActivity(), BookDetails.class);
+                intent.putExtra("BookID", String.valueOf(selected_bookId));
                 startActivity(intent);
-
+                getActivity().finish();
                 return true;
             case R.id.books_addToReading:
                 addToReading();
@@ -117,42 +125,85 @@ public class BooksForReadingFragment extends Fragment {
         }
     }
 
-    public void addToReading(){
+    public void addToReading() {
         new AlertDialog.Builder(getActivity())
                 .setTitle(getString(R.string.move_book_to_reading))
                 .setMessage(getString(R.string.add_to_reading))
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
+                .setPositiveButton(
+                        android.R.string.yes, new DialogInterface.OnClickListener() {
 
-                        String whereClause=BOOK.COLUMN_ID+"=?";
-                        String[] args={String.valueOf(selected_bookId)};
+                            public void onClick(DialogInterface dialog, int whichButton) {
+
+                                final String whereClause = BOOK.COLUMN_ID + "=?";
+                                final String[] args = {String.valueOf(selected_bookId)};
 
 
-                        ContentValues values=new ContentValues();
-                        values.put(BOOK.COLUMN_CURRENTLY_READING,1);
-                        values.put(BOOK.COLUMN_FOR_READING, 0);
+                                final ContentValues values = new ContentValues();
+                                values.put(BOOK.COLUMN_CURRENTLY_READING, 1);
+                                values.put(BOOK.COLUMN_FOR_READING, 0);
 
-                        boolean updated=dbHandler.updateBook(values,whereClause,args);
-                        dbHandler.recordReading(String.valueOf(selected_bookId),0);
+                                new AlertDialog.Builder(getActivity())
+                                        .setTitle("Notifications?")
+                                        .setMessage("Do you want to get reminders for reading for this book?")
+                                        .setIcon(android.R.drawable.ic_dialog_alert)
+                                        .setPositiveButton(
+                                                android.R.string.yes, new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int whichButton) {
 
-                        if (updated)
-                        {
-                            Log.e("Updated books ",String.valueOf(updated));
-                            adapter.changeCursor(dbHandler.getBookForReading(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
+                                                        final Calendar calendar = Calendar.getInstance();
 
-                        }
-                        else
-                        {
-                            Log.e("Updated books ","Book update failed");
-                        }
+                                                        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                                                        int minute = calendar.get(Calendar.MINUTE);
 
-                    }})
-                .setNegativeButton(android.R.string.no, null).show();
+                                                        TimePickerDialog mTimePicker;
+                                                        mTimePicker = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
+                                                            @Override
+                                                            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                                                                calendar.set(Calendar.HOUR_OF_DAY, selectedHour);
+                                                                calendar.set(Calendar.MINUTE, selectedMinute);
+                                                                values.put(BOOK.COLUMN_NOTIFICATION_TIME, CalendarHelper.getDateInString(calendar));
+                                                                MyAlarmManager alarmManager = new MyAlarmManager(getContext());
+                                                                alarmManager.setAlarmForBook(Integer.toString(selected_bookId), CalendarHelper.getDateInString(calendar));
+                                                                boolean updated = dbHandler.updateBook(values, whereClause, args);
+
+                                                                if (updated) {
+                                                                    Log.e("Updated books ", String.valueOf(updated));
+                                                                    adapter.changeCursor(dbHandler.getBookForReading(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
+
+                                                                } else {
+                                                                    Log.e("Updated books ", "Book update failed");
+                                                                }
+
+                                                            }
+
+                                                        }, hour, minute, true);//Yes 24 hour time
+                                                        mTimePicker.setTitle("Select time for getting notifications");
+                                                        mTimePicker.show();
+
+
+                                                    }
+                                                })
+                                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialogInterface, int i) {
+                                                boolean updated = dbHandler.updateBook(values, whereClause, args);
+
+                                                if (updated) {
+                                                    Log.e("Updated books ", String.valueOf(updated));
+                                                    adapter.changeCursor(dbHandler.getBookForReading(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
+
+                                                } else {
+                                                    Log.e("Updated books ", "Book update failed");
+                                                }
+                                            }
+                                        }).show();
+                            }
+                        }).setNegativeButton(android.R.string.no, null).show();
     }
 
 
-    public void deleteFromList(){
+    public void deleteFromList() {
         new AlertDialog.Builder(getActivity())
                 .setTitle(getString(R.string.delete_book))
                 .setMessage(getString(R.string.delete_book_text))
@@ -160,22 +211,20 @@ public class BooksForReadingFragment extends Fragment {
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
 
-                        String whereClause=BOOK.COLUMN_ID+"=?";
-                        String[] args={String.valueOf(selected_bookId)};
+                        String whereClause = BOOK.COLUMN_ID + "=?";
+                        String[] args = {String.valueOf(selected_bookId)};
 
 
-                        boolean deleted=dbHandler.deleteBook(whereClause,args);
+                        boolean deleted = dbHandler.deleteBook(whereClause, args);
 
-                        if (deleted)
-                        {
+                        if (deleted) {
                             adapter.changeCursor(dbHandler.getBookForReading(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
-                        }
-                        else
-                        {
-                            Log.e("Delete books ","Book delete failed");
+                        } else {
+                            Log.e("Delete books ", "Book delete failed");
                         }
 
-                    }})
+                    }
+                })
                 .setNegativeButton(android.R.string.no, null).show();
     }
 
@@ -264,6 +313,18 @@ public class BooksForReadingFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         dbHandler.closeDB();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        refresh();
+    }
+
+    @Override
+    public void refresh() {
+        adapter.changeCursor(dbHandler.getBookForReading(ASCENDING_ORDER, SORTING_COLUMN, SEARCH_TEXT));
+        Log.d("refresh", "for reading");
     }
 }
 

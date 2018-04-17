@@ -7,15 +7,18 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.util.Log;
 import android.widget.CursorAdapter;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.readingtrackerapp.database.DBContractClass.BOOK;
-import com.readingtrackerapp.database.DBContractClass.GENRE;
-import com.readingtrackerapp.database.DBContractClass.USER;
-import com.readingtrackerapp.model.Book;
-import com.readingtrackerapp.model.Genre;
-import com.readingtrackerapp.model.User;
+import com.readingtrackerapp.database.DBContractClass.*;
+import com.readingtrackerapp.model.*;
 import com.readingtrackerapp.helper.CalendarHelper;
+
+import java.util.Calendar;
+
+/**
+ * Created by Anes on 3/23/2018.
+ */
 
 public class DBHandler {
 
@@ -27,6 +30,7 @@ public class DBHandler {
 
         context=c;
         openDB();
+
 
     }
 
@@ -48,18 +52,18 @@ public class DBHandler {
         values.put(USER.COLUMN_SURNAME,surname);
         values.put(USER.COLUMN_REGISTRATION_DATE,date);
         values.put(USER.COLUMN_READ_PAGES_NUMBER,0);
+        values.put(USER.COLUMN_READ_TITLES_NUMBER,0);
 
         long num=db.insert(USER.TABLE_NAME,null,values);
 
         return num!=0;
 
     }
-    public User getUser(){
+    public Cursor getUser(){
 
-        Cursor c=db.query(USER.TABLE_NAME,new String[]{USER.COLUMN_ID, USER.COLUMN_NAME, USER.COLUMN_SURNAME, USER.COLUMN_REGISTRATION_DATE, USER.COLUMN_READ_PAGES_NUMBER},null,null,null,null,null);
+        Cursor c=db.query(USER.TABLE_NAME,new String[]{USER.COLUMN_ID, USER.COLUMN_NAME, USER.COLUMN_SURNAME, USER.COLUMN_REGISTRATION_DATE, USER.COLUMN_READ_PAGES_NUMBER,USER.COLUMN_READ_TITLES_NUMBER},null,null,null,null,null);
 
-        return !c.moveToNext()?null:new User(c.getString(1),c.getString(2),c.getString(3),c.getInt(4));
-
+        return c;
     }
     public boolean isUserRegistered(){
 
@@ -76,6 +80,40 @@ public class DBHandler {
     public void deleteUser() {
 
         db.delete(USER.TABLE_NAME,null,null);
+
+    }
+    public void addreadPages(int readPagesNumber, boolean bookFinished){
+
+        Cursor c=db.query(USER.TABLE_NAME,new String[]{USER.COLUMN_READ_TITLES_NUMBER, USER.COLUMN_READ_PAGES_NUMBER},null,null,null,null,null);
+
+        c.moveToNext();
+
+        int readPages=c.getInt(1);
+        readPages+=readPagesNumber;
+
+        ContentValues values=new ContentValues();
+        if(bookFinished){
+            int numberOfReadTitles=c.getInt(0);
+            numberOfReadTitles++;
+            values.put(USER.COLUMN_READ_TITLES_NUMBER,numberOfReadTitles);
+        }
+        values.put(USER.COLUMN_READ_PAGES_NUMBER,readPages);
+
+
+        db.update(USER.TABLE_NAME,values,null,null);
+    }
+    public Cursor getStatistics(){
+
+    String query="select monthlyGoals._id,monthlyGoals.year,monthlyGoals.month, monthlyGoals.numberOfPages,ifnull(sum(readingEvidentions.readPagesNumber),0) as 'sum'" +
+            "from monthlyGoals left join readingEvidentions on monthlyGoals.year=readingEvidentions.year AND monthlyGoals.month=readingEvidentions.month " +
+            "group by monthlyGoals._id,monthlyGoals.year,monthlyGoals.month, monthlyGoals.numberOfPages " +
+            "order by monthlyGoals.year DESC, monthlyGoals.month DESC";
+
+    Cursor cursor=db.rawQuery(query,null);
+
+
+    return cursor;
+
 
     }
 
@@ -105,8 +143,27 @@ public class DBHandler {
 
         return c;
 
+       /* List<Genre> genres=new ArrayList<>();
+
+        while (c.moveToNext())
+            genres.add(new Genre(c.getInt(0),c.getString(1)));
+
+        return genres;*/
+
+
     }
 
+
+    public void insertMonthlyGoal(String pagesNum){
+
+        ContentValues values=new ContentValues();
+        values.put(MONTHLY_GOAL.COLUMN_NUMBER_OF_PAGES,pagesNum);
+        values.put(MONTHLY_GOAL.COLUMN_YEAR,Calendar.getInstance().get(Calendar.YEAR));
+        values.put(MONTHLY_GOAL.COLUMN_MONTH,Calendar.getInstance().get(Calendar.MONTH));
+
+        db.insert(MONTHLY_GOAL.TABLE_NAME,null,values);
+
+    }
 
     // BOOK METHODS
     public int insertBook(String title, int pagesNumber, String author, int genreId, String timeForNotification, boolean currentlyOnReading){
@@ -130,45 +187,6 @@ public class DBHandler {
 
 
     }
-
-
-    public int recordReading(String bookID, int numPages)
-    {
-        //Just insert function when recording reading but this one records values for READING_EVIDENTION TABLE
-
-        ContentValues contentValues=new ContentValues();
-        contentValues.put(DBContractClass.READING_EVIDENTION.COLUMN_BOOK_ID,bookID);
-        contentValues.put(DBContractClass.READING_EVIDENTION.COLUMN_NUMBER_OF_READ_PAGES,numPages);
-        contentValues.put(DBContractClass.READING_EVIDENTION.COLUMN_DAY,CalendarHelper.getDay());
-        contentValues.put(DBContractClass.READING_EVIDENTION.COLUMN_MONTH,CalendarHelper.getMonth());
-        contentValues.put(DBContractClass.READING_EVIDENTION.COLUMN_YEAR,CalendarHelper.getYear());
-        int inserted=0;
-        try {
-            inserted = (int) db.insert(DBContractClass.READING_EVIDENTION.TABLE_NAME, null, contentValues);
-            Log.e("Record_r","READING_EVIDENTION Instanced! "+String.valueOf(numPages)+" pages read");
-
-        }catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        return inserted;
-    }
-
-    public int getNumberOfReadPages_EvidentionTable(String Book_id)
-    {
-        Cursor c=db.query(DBContractClass.READING_EVIDENTION.TABLE_NAME,new String[]{DBContractClass.READING_EVIDENTION.COLUMN_ID, DBContractClass.READING_EVIDENTION.COLUMN_NUMBER_OF_READ_PAGES},
-                DBContractClass.READING_EVIDENTION.COLUMN_BOOK_ID+"=?",new String[]{Book_id},null,null,null);
-        int num_read_pages_Totally=0;
-
-        while(c.moveToNext()){
-            num_read_pages_Totally+=c.getInt(1);
-        }
-        Log.e("Num_read_ET",String.valueOf(num_read_pages_Totally));
-
-        return num_read_pages_Totally;
-    }
-
-
 
     public Book getBookById(String id){
 
@@ -377,6 +395,7 @@ public class DBHandler {
 
     }
 
+
     public int getNumberOfReadPages(String bookID)
     {
         Cursor c=db.query(DBContractClass.BOOK.TABLE_NAME,new String[]{DBContractClass.BOOK.COLUMN_ID, DBContractClass.BOOK.COLUMN_NUMBER_OF_READ_PAGES}, DBContractClass.BOOK.COLUMN_ID+"=?",new String[]{bookID},null,null,null);
@@ -394,5 +413,59 @@ public class DBHandler {
 
     }
 
+    public void evidentateReading(String bookID, int pagesNum){
 
+        ContentValues values=new ContentValues();
+        values.put(READING_EVIDENTION.COLUMN_BOOK_ID,bookID);
+        values.put(READING_EVIDENTION.COLUMN_NUMBER_OF_READ_PAGES,pagesNum);
+        values.put(READING_EVIDENTION.COLUMN_YEAR, Calendar.getInstance().get(Calendar.YEAR));
+        values.put(READING_EVIDENTION.COLUMN_MONTH, Calendar.getInstance().get(Calendar.MONTH));
+        values.put(READING_EVIDENTION.COLUMN_DAY, Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+
+        db.insert(READING_EVIDENTION.TABLE_NAME,null,values);
+
+    }
+
+    public boolean hasAlatmSet(String bookID){
+        Cursor cursor=db.query(BOOK.TABLE_NAME,new String[]{BOOK.COLUMN_NOTIFICATION_TIME},BOOK.COLUMN_ID+"=?",new String[]{bookID},null,null,null);
+        cursor.moveToNext();
+
+        return !cursor.isNull(0);
+
+    }
+
+    public void setTimeForNotif(String bookID,String newTime){
+
+        ContentValues values=new ContentValues();
+        values.put(BOOK.COLUMN_NOTIFICATION_TIME,newTime);
+        db.update(BOOK.TABLE_NAME,values,BOOK.COLUMN_ID+"=?",new String[]{bookID});
+
+    }
+
+    public boolean isBookReadForToday(String bookID, String year, String month, String day) {
+
+        Cursor cursor=db.query(READING_EVIDENTION.TABLE_NAME,new String []{READING_EVIDENTION._ID},READING_EVIDENTION.COLUMN_BOOK_ID+"=? AND "+READING_EVIDENTION.COLUMN_YEAR+"=? AND "+READING_EVIDENTION.COLUMN_MONTH+"=? AND "+READING_EVIDENTION.COLUMN_DAY+"=?",new String[]{bookID,year,month,day},null,null,null);
+
+        if (cursor.getCount() ==0){
+            //cursor is empty
+            Log.d("citanje","nema citanja na datum: "+year+"."+month+"."+day+" za knjigu: "+bookID);
+            return false;
+        }
+        else{
+            Log.d("citanje","citanje se desilo za knjigu: "+bookID);
+            return true;
+        }
+    }
+
+    public boolean isMonthlyGoalSetForThisMonth() {
+
+    Cursor c=db.query(MONTHLY_GOAL.TABLE_NAME,new String[]{MONTHLY_GOAL.COLUMN_ID},MONTHLY_GOAL.COLUMN_YEAR+"=? AND "+MONTHLY_GOAL.COLUMN_MONTH+"=?",new String[]{Integer.toString(Calendar.getInstance().get(Calendar.YEAR)),Integer.toString(Calendar.getInstance().get(Calendar.MONTH))},null,null,null);
+
+    return c.getCount()>0;
+
+    }
 }
+
+
+
+

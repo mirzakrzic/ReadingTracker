@@ -4,5 +4,6 @@
         <item android:id="@+id/books_details" android:title="Book details" />
         <item android:id="@+id/books_readingTrack" android:title="Add read pages" />
         <item android:id="@+id/books_comment" android:title="Add comment on book" />
+        <item android:id="@+id/books_setNotifTime" android:title="Set notification time" />
         <item android:id="@+id/books_delete" android:title="Delete book" />
 </menu>

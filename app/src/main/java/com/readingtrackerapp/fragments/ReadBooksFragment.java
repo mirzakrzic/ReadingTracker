@@ -24,12 +24,13 @@ import com.readingtrackerapp.activities.BookDetails;
 import com.readingtrackerapp.adapters.ReadBooksListAdapter;
 import com.readingtrackerapp.database.DBContractClass;
 import com.readingtrackerapp.database.DBHandler;
+import com.readingtrackerapp.helper.IRefreshable;
 
 /**
  * Created by Anes on 3/24/2018.
  */
 
-public class ReadBooksFragment extends Fragment {
+public class ReadBooksFragment extends Fragment implements IRefreshable {
 
     ListView listView;
     DBHandler dbHandler;
@@ -167,6 +168,19 @@ public class ReadBooksFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         dbHandler.closeDB();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        refresh();
+    }
+
+    @Override
+    public void refresh() {
+        adapter.changeCursor(dbHandler.getReadBooks(ASCENDING_ORDER, SORTING_COLUMN,SEARCH_TEXT));
+        Log.d("refresh"," read books");
+
     }
 }
 
