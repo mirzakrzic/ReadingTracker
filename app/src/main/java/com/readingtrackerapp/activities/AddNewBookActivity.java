@@ -58,6 +58,7 @@ public class AddNewBookActivity extends AppCompatActivity {
                 Intent returnIntent = new Intent();
                 setResult(Activity.RESULT_CANCELED, returnIntent);
                 AddNewBookActivity.this.finish();
+               
             } catch (Exception e) {
                 e.printStackTrace();
             }
