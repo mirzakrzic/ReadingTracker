@@ -3,6 +3,8 @@ package com.readingtrackerapp.Apis;
 import android.net.Uri;
 import android.util.Log;
 
+import com.readingtrackerapp.model.Book;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -70,6 +72,80 @@ public class ApiUtil {
             e.printStackTrace();
         }
         return url;
+    }
+
+    public static ArrayList<Book> getBooksFromJSON(String json){
+        final String TITLE = "title";
+        final String SUBTITLE = "subtitle";
+        final String AUTHORS = "authors";
+        final String PUBLISHER = "publisher";
+        final String PUBLISHED_DATE="publishedDate";
+        final String ITEMS = "items";
+        final String VOLUMEINFO = "volumeInfo";
+        final String DESCRIPTION = "description";
+        final String IMAGEINFO = "imageLinks";
+        final String THUMBNAIL = "thumbnail";
+        final String PAGECOUNT="pageCount";
+        final String RATINGSCOUNT="ratingsCount";
+
+
+        ArrayList<Book> books = new ArrayList<Book>();
+        try {
+            JSONObject jsonBooks = new JSONObject(json);
+            JSONArray arrayBooks = jsonBooks.getJSONArray(ITEMS);
+            int numberOfBooks = arrayBooks.length();
+            for (int i =0; i<numberOfBooks;i++){
+                JSONObject bookJSON = arrayBooks.getJSONObject(i);
+                JSONObject volumeInfoJSON =
+                        bookJSON.getJSONObject(VOLUMEINFO);
+                JSONObject imageLinksJSON=null;
+                //qui problema
+                if (volumeInfoJSON.has(IMAGEINFO)) {
+                    imageLinksJSON = volumeInfoJSON.getJSONObject(IMAGEINFO);
+                }
+                int authorNum;
+                try {
+                    authorNum = volumeInfoJSON.getJSONArray(AUTHORS).length();
+                }
+                catch (Exception e) {
+                    authorNum = 0;
+                }
+
+                String authors ="";
+                if(authorNum==1){
+                    authors+=volumeInfoJSON.getJSONArray(AUTHORS).get(0);
+                }
+                else {
+                    int before_last=0;
+                    for (int j = 0; j < authorNum; j++) {
+                        if (before_last==authorNum-2)
+                        {
+                            authors = authors + volumeInfoJSON.getJSONArray(AUTHORS).get(j).toString();
+                        }
+
+                        authors = authors + volumeInfoJSON.getJSONArray(AUTHORS).get(j).toString() + ", ";
+                        before_last++;
+
+
+                    }
+                }
+                Book book = new Book(
+                        volumeInfoJSON.getString(TITLE),
+                        (volumeInfoJSON.isNull(SUBTITLE)?"":volumeInfoJSON.getString(SUBTITLE)),
+                        (volumeInfoJSON.isNull(PAGECOUNT))?0:volumeInfoJSON.getInt(PAGECOUNT),
+                        authors,
+                        (volumeInfoJSON.isNull(RATINGSCOUNT))?0:volumeInfoJSON.getInt(RATINGSCOUNT),
+                        (volumeInfoJSON.isNull(PUBLISHER)?"":volumeInfoJSON.getString(PUBLISHER)),
+                        (volumeInfoJSON.isNull(PUBLISHED_DATE)?"":volumeInfoJSON.getString(PUBLISHED_DATE)),
+                        (volumeInfoJSON.isNull(DESCRIPTION)?"":volumeInfoJSON.getString(DESCRIPTION)),
+                        (imageLinksJSON==null)?"":imageLinksJSON.getString(THUMBNAIL));
+                books.add(book);
+            }
+        }
+        catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return books;
     }
 
     public static String getJSON(URL url) throws IOException

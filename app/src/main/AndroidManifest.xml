@@ -38,7 +38,8 @@
 
         <service android:name=".alarmManager.AfterRebootService" />
 
-        <activity android:name=".activities.BookDetails"></activity>
+        <activity android:name=".activities.BookDetails" />
+        <activity android:name=".activities.BookDetailsOnline"></activity>
     </application>
 
 </manifest>

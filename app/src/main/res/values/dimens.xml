@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="published_date_padding">16sp</dimen>
+    <dimen name="authors_size">15sp</dimen>
+    <dimen name="title_size">18sp</dimen>
+    <dimen name="standard_margin">16dp</dimen>
+    <dimen name="margin_search_activity">24dp</dimen>
+    <dimen name="pub_pubDate_size">12sp</dimen>
+</resources>

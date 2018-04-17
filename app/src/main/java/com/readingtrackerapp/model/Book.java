@@ -1,13 +1,21 @@
 package com.readingtrackerapp.model;
 
-import android.os.Parcel;
 
-public class Book {
+import android.databinding.BindingAdapter;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.widget.ImageView;
+
+import com.readingtrackerapp.R;
+import com.squareup.picasso.Picasso;
+
+public class Book implements Parcelable{
 
     private int id;
-    private String title;
-    private int numberOfPages;
-    private String authorName;
+    public String title;
+    public String subTitle;
+    public int numberOfPages;
+    public String authorName;
     private int genreId;
     private int rating;
     private boolean readingCurrently;
@@ -15,6 +23,25 @@ public class Book {
     private boolean forReading;
     private String timeForNotification;
     private int numberOfReadPages;
+    public String publisher;
+    public String publishedDate;
+    public String description;
+    public String thumbnail;
+
+    public Book(String title, String subTitle, int numberOfPages, String authorName, int rating, String publisher, String publishedDate, String description,String thumbnail) {
+        this.title = title;
+        this.subTitle = subTitle;
+        this.numberOfPages = numberOfPages;
+        this.authorName = authorName;
+        this.rating = rating;
+        this.publisher = publisher;
+        this.publishedDate = publishedDate;
+        this.description = description;
+        this.thumbnail=thumbnail;
+    }
+
+
+
 
     public Book(){}
     public Book(int id, String title,int numberOfPages, String authorName, int genreId, int rating, boolean readingCurrently, boolean alreadyRead, boolean forReading, String timeForNotification, int numberOfReadPages){
@@ -31,6 +58,37 @@ public class Book {
         this.numberOfReadPages=numberOfReadPages;
     }
 
+
+    protected Book(Parcel in) {
+        id = in.readInt();
+        title = in.readString();
+        subTitle = in.readString();
+        numberOfPages = in.readInt();
+        authorName = in.readString();
+        genreId = in.readInt();
+        rating = in.readInt();
+        readingCurrently = in.readByte() != 0;
+        alreadyRead = in.readByte() != 0;
+        forReading = in.readByte() != 0;
+        timeForNotification = in.readString();
+        numberOfReadPages = in.readInt();
+        publisher = in.readString();
+        publishedDate = in.readString();
+        description = in.readString();
+        thumbnail = in.readString();
+    }
+
+    public static final Creator<Book> CREATOR = new Creator<Book>() {
+        @Override
+        public Book createFromParcel(Parcel in) {
+            return new Book(in);
+        }
+
+        @Override
+        public Book[] newArray(int size) {
+            return new Book[size];
+        }
+    };
 
     // id
     public int getId() {
@@ -115,5 +173,44 @@ public class Book {
     }
     public void setNumberOfReadPages(int numberOfReadPages) {
         this.numberOfReadPages = numberOfReadPages;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(id);
+        parcel.writeString(title);
+        parcel.writeString(subTitle);
+        parcel.writeInt(numberOfPages);
+        parcel.writeString(authorName);
+        parcel.writeInt(genreId);
+        parcel.writeInt(rating);
+        parcel.writeByte((byte) (readingCurrently ? 1 : 0));
+        parcel.writeByte((byte) (alreadyRead ? 1 : 0));
+        parcel.writeByte((byte) (forReading ? 1 : 0));
+        parcel.writeString(timeForNotification);
+        parcel.writeInt(numberOfReadPages);
+        parcel.writeString(publisher);
+        parcel.writeString(publishedDate);
+        parcel.writeString(description);
+        parcel.writeString(thumbnail);
+    }
+
+    @BindingAdapter({"android:imageUrl"})
+    public static void loadImage(ImageView view, String imageUrl)
+    {
+        if(!imageUrl.isEmpty()) {
+            Picasso.with(view.getContext())
+                    .load(imageUrl)
+                    .placeholder(R.drawable.ic_book)
+                    .into(view);
+        }else
+        {
+            view.setBackgroundResource(R.drawable.ic_book);
+        }
     }
 }
