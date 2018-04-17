@@ -211,12 +211,11 @@ public class Search_online extends Fragment implements SearchView.OnQueryTextLis
             TextView error=(TextView) getActivity().findViewById(R.id.tv_error);
             final TextView goToSettings=(TextView) getActivity().findViewById(R.id.tv_settings);
             Button retryBtn=(Button) getActivity().findViewById(R.id.btn_retry);
-
             mLoadingProgress.setVisibility(View.INVISIBLE);
-
             if(result==null) {
-                error.setVisibility(VISIBLE);
-                goToSettings.setVisibility(VISIBLE);
+
+                error.setVisibility(View.VISIBLE);
+                goToSettings.setVisibility(View.VISIBLE);
                 goToSettings.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -224,7 +223,7 @@ public class Search_online extends Fragment implements SearchView.OnQueryTextLis
                     }
                 });
 
-                retryBtn.setVisibility(VISIBLE);
+                retryBtn.setVisibility(View.VISIBLE);
                 retryBtn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -233,18 +232,19 @@ public class Search_online extends Fragment implements SearchView.OnQueryTextLis
                 });
             }
             else{
-
+                mLoadingProgress.setVisibility(View.INVISIBLE);
                 error.setVisibility(View.INVISIBLE);
                 goToSettings.setVisibility(View.INVISIBLE);
                 retryBtn.setVisibility(View.INVISIBLE);
 
+                ArrayList<Book> books=ApiUtil.getBooksFromJSON(result);
+                String resultString="";
+
+                BooksAdapter adapter = new BooksAdapter(books);
+                rvBooks.setAdapter(adapter);
             }
 
-            ArrayList<Book> books=ApiUtil.getBooksFromJSON(result);
-            String resultString="";
 
-            BooksAdapter adapter = new BooksAdapter(books);
-            rvBooks.setAdapter(adapter);
         }
 
         @Override
