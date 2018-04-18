@@ -28,12 +28,15 @@ import com.readingtrackerapp.database.DBHandler;
 public class RecordReading extends AppCompatActivity {
 
     DBHandler dbHandler;
+    boolean set;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         dbHandler=new DBHandler(getApplicationContext());
+
+        set=false;
 
         if(getIntent().hasExtra("goal"))
             setMonthlyGoal();
@@ -58,9 +61,9 @@ public class RecordReading extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                if(readPages.getText().toString().isEmpty()){
+                if(readPages.getText().toString().isEmpty() || readPages.getText().toString().length()<=0){
                     Toast.makeText(getApplicationContext(),"CANNOT BE EMPTY!",Toast.LENGTH_SHORT).show();
-                    setMonthlyGoal();
+                    return;
                 }
 
                 String s=readPages.getText().toString();
@@ -71,9 +74,26 @@ public class RecordReading extends AppCompatActivity {
 
                 MyAlarmManager alarmManager=new MyAlarmManager(getApplicationContext());
                 alarmManager.setAlarmForNextMonthlyGoal();
+                set=true;
 
                 finish1();
 
+            }
+        });
+
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                if(!set)
+                    dialog.show();
+            }
+        });
+
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                if(!set)
+                    dialog.show();
             }
         });
 
@@ -105,10 +125,26 @@ public class RecordReading extends AppCompatActivity {
                                  KeyEvent event) {
                 // TODO Auto-generated method stub
                 if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    set=true;
                     finish1();
-                    dialog.dismiss();
                 }
                 return false;
+            }
+        });
+
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                if(!set)
+                    dialog.show();
+            }
+        });
+
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                if(!set)
+                    dialog.show();
             }
         });
 
@@ -116,9 +152,9 @@ public class RecordReading extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                if(readPages.getText().toString().isEmpty()){
+                if(readPages.getText().toString().isEmpty() || readPages.getText().toString().length()<=0){
                     readPages.setError("This field can't be empty!");
-                    return;
+                    dialog.show();
                 }
 
                 int input_readPages = Integer.parseInt(readPages.getText().toString());
@@ -156,6 +192,7 @@ public class RecordReading extends AppCompatActivity {
                                     boolean updated = dbHandler.updateBook(contentValues, whereClause, args);
                                     dbHandler.evidentateReading(Integer.toString(selected_bookId), finalInput_readPages2 -currently_read_pages);
                                     dbHandler.addreadPages(finalInput_readPages1-currently_read_pages,true);
+                                    set=true;
 
 
                                     if (updated) {
@@ -213,6 +250,7 @@ public class RecordReading extends AppCompatActivity {
                     dbHandler.updateBook(contentValues, whereClause, args);
                     dbHandler.evidentateReading(Integer.toString(selected_bookId),input_readPages-currently_read_pages);
                     dbHandler.addreadPages(input_readPages-currently_read_pages,false);
+                    set=true;
 
                     finish1();
                 }
@@ -228,6 +266,9 @@ public class RecordReading extends AppCompatActivity {
     }
 
     public void finish1() {
+
+        if(!set)return;
+
         dbHandler.closeDB();
         startActivity(new Intent(getApplicationContext(),MainActivity.class));
         finish();

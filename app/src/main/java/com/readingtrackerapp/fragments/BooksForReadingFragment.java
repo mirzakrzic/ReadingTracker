@@ -181,7 +181,6 @@ public class BooksForReadingFragment extends Fragment implements IRefreshable {
                                                         mTimePicker.setTitle("Select time for getting notifications");
                                                         mTimePicker.show();
 
-
                                                     }
                                                 })
                                         .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {

@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
             Snackbar.make(findViewById(R.id.content), "Wellcome back " + user.getString(user.getColumnIndex(DBContractClass.USER.COLUMN_NAME)).toUpperCase() + " " + user.getString(user.getColumnIndex(DBContractClass.USER.COLUMN_SURNAME)).toUpperCase(), Snackbar.LENGTH_SHORT)
                     .setActionTextColor(getResources().getColor(android.R.color.holo_red_light))
                     .show();
-            username_text=user.getString(user.getColumnIndex(DBContractClass.USER.COLUMN_NAME)).toUpperCase() + " " + user.getString(user.getColumnIndex(DBContractClass.USER.COLUMN_NAME)).toUpperCase();
+            username_text=user.getString(user.getColumnIndex(DBContractClass.USER.COLUMN_NAME)).toUpperCase() + " " + user.getString(user.getColumnIndex(DBContractClass.USER.COLUMN_SURNAME)).toUpperCase();
 
             return true;
 

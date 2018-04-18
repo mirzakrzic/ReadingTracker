@@ -7,7 +7,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_weight="7"
         android:orientation="horizontal">
 
@@ -20,28 +20,28 @@
 
         <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="2"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/title"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="TextView" />
 
             <TextView
                 android:id="@+id/author"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="TextView" />
 
             <TextView
                 android:id="@+id/genre"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="TextView" />
         </LinearLayout>
@@ -50,14 +50,14 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_weight="3"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/progresTxt"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="2"
             android:text="TextView"
             android:textAlignment="center"
@@ -67,7 +67,7 @@
             android:id="@+id/progressBar"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="2" />
     </LinearLayout>
 

@@ -3,6 +3,7 @@ package com.readingtrackerapp.activities;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -138,6 +139,7 @@ public class AddNewBookActivity extends AppCompatActivity {
 
                 if(b){
 
+
                     calendar=Calendar.getInstance();
 
                     int hour = calendar.get(Calendar.HOUR_OF_DAY);
@@ -156,6 +158,20 @@ public class AddNewBookActivity extends AppCompatActivity {
                     }, hour, minute, true);//Yes 24 hour time
                     mTimePicker.setTitle("Select time for getting notifications");
                     mTimePicker.show();
+
+                    mTimePicker.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialogInterface) {
+                            getNotificationsCheckBox.setChecked(false);
+                        }
+                    });
+
+                    mTimePicker.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialogInterface) {
+                            getNotificationsCheckBox.setChecked(false);
+                        }
+                    });
 
                 }
             }
