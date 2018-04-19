@@ -94,7 +94,6 @@ public class CurrentlyReadingBooksFragment extends Fragment implements IRefresha
                     has_alarm_setup = true;//* check if the notification time is set-up?
                 }
                 listView.showContextMenu();
-                Toast.makeText(getActivity().getBaseContext(), "SELECTED BOOK_ID: " + String.valueOf(selected_bookId), Toast.LENGTH_SHORT).show();
                 return true;
             }
         });

@@ -132,29 +132,14 @@ public class RecordReading extends AppCompatActivity {
             }
         });
 
-        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialogInterface) {
-                if(!set)
-                    dialog.show();
-            }
-        });
 
-        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialogInterface) {
-                if(!set)
-                    dialog.show();
-            }
-        });
 
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 if(readPages.getText().toString().isEmpty() || readPages.getText().toString().length()<=0){
-                    readPages.setError("This field can't be empty!");
-                    dialog.show();
+                    readPages.setError("This field cannot be empty!");return;
                 }
 
                 int input_readPages = Integer.parseInt(readPages.getText().toString());
@@ -267,8 +252,7 @@ public class RecordReading extends AppCompatActivity {
 
     public void finish1() {
 
-        if(!set)return;
-
+        if(!set) return;
         dbHandler.closeDB();
         startActivity(new Intent(getApplicationContext(),MainActivity.class));
         finish();

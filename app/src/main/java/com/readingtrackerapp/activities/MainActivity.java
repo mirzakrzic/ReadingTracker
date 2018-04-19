@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     NavigationView mNavigationView;
     View mHeaderView;
     String username_text;
+    static int firstTime=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +57,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         // checks if user is registered
-        if(isUserRegistered())
-            isMonhlyGoalSet();
+        if(firstTime==0 && isUserRegistered()){
+            isMonhlyGoalSet();}
+
 
         // set toolbar and options menu for sorting books
         setToolbar();
@@ -138,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (dbHandler.isUserRegistered()) {
 
+            firstTime=1;
             Cursor user = dbHandler.getUser();
 
             user.moveToNext();

@@ -21,12 +21,14 @@ public class RegisterUser extends AppCompatActivity {
     TextInputLayout nameLayout,surnameLayout;
     EditText nameEditText, surnameEditText;
     DBHandler dbHandler;
+    boolean set;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.register_user_layout);
 
+        set=false;
         dbHandler=new DBHandler(getApplicationContext());
 
         setViews();
@@ -50,6 +52,7 @@ public class RegisterUser extends AppCompatActivity {
 
         // register user in database
         dbHandler.registerUser(nameEditText.getText().toString(),surnameEditText.getText().toString(), CalendarHelper.getCurrentlyDateInString());
+        set=true;
 
         if(dbHandler.isMonthlyGoalSetForThisMonth()) return;
 
@@ -86,7 +89,11 @@ public class RegisterUser extends AppCompatActivity {
 
     }
 
-
+    @Override
+    public void onBackPressed() {
+        if(!set) return;
+        super.onBackPressed();
+    }
 
     @Override
     protected void onDestroy() {

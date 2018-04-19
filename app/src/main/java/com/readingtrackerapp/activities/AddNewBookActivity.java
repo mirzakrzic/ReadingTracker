@@ -166,12 +166,7 @@ public class AddNewBookActivity extends AppCompatActivity {
                         }
                     });
 
-                    mTimePicker.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialogInterface) {
-                            getNotificationsCheckBox.setChecked(false);
-                        }
-                    });
+
 
                 }
             }
