@@ -125,8 +125,6 @@ public class ApiUtil {
 
                         authors = authors + volumeInfoJSON.getJSONArray(AUTHORS).get(j).toString() + ", ";
                         before_last++;
-
-
                     }
                 }
                 Book book = new Book(
